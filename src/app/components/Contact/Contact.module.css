@@ -1,0 +1,254 @@
+/*-----------------------------------*\
+  #CONTACT
+\*-----------------------------------*/
+
+.contact {
+  padding-block: var(--section-padding);
+  background: var(--cultured-2);
+}
+
+.contactContainer {
+  /* Container styles */
+}
+
+.sectionSubtitle {
+  /* Inherit from global styles */
+}
+
+.sectionTitle {
+  /* Inherit from global styles */
+}
+
+.contactContent {
+  display: grid;
+  gap: 50px;
+}
+
+.contactInfo {
+  text-align: center;
+}
+
+.contactTitle {
+  margin-bottom: 30px;
+  color: var(--prussian-blue);
+}
+
+.contactList {
+  margin-bottom: 30px;
+  list-style: none;
+  padding: 0;
+}
+
+.contactList li {
+  margin-bottom: 15px;
+}
+
+.contactLink {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  color: var(--cadet);
+  margin-bottom: 15px;
+  transition: var(--transition);
+  text-decoration: none;
+}
+
+.contactLink:is(:hover, :focus) {
+  color: var(--orange-soda);
+}
+
+.contactLink ion-icon {
+  font-size: 20px;
+  margin-bottom: 8px;
+  color: var(--orange-soda);
+  flex-shrink: 0;
+}
+
+.contactLink :is(address, span) {
+  font-size: var(--fs-5);
+  line-height: 1.6;
+  font-style: normal;
+}
+
+.contactLink address {
+  font-style: normal;
+}
+
+.contactHours {
+  background: var(--white);
+  padding: 25px;
+  border-radius: 8px;
+  box-shadow: var(--shadow-1);
+  margin-top: 20px;
+}
+
+.contactHours .h4 {
+  color: var(--prussian-blue);
+  margin-bottom: 15px;
+  font-size: var(--fs-4);
+  font-weight: var(--fw-600);
+}
+
+.contactHours p {
+  color: var(--cadet);
+  font-size: var(--fs-5);
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+.contactForm {
+  background: var(--white);
+  padding: 40px;
+  border-radius: 12px;
+  box-shadow: var(--shadow-2);
+}
+
+.contactForm .contactTitle {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.form {
+  display: grid;
+  gap: 20px;
+}
+
+.formGroup {
+  display: grid;
+  gap: 8px;
+}
+
+.formLabel {
+  color: var(--prussian-blue);
+  font-weight: var(--fw-600);
+  font-size: var(--fs-5);
+}
+
+.formInput,
+.formSelect,
+.formTextarea {
+  padding: 12px 16px;
+  border: 2px solid var(--cultured-1);
+  border-radius: 8px;
+  font-size: var(--fs-5);
+  transition: var(--transition);
+  background: var(--white);
+  width: 100%;
+  box-sizing: border-box;
+  font-family: inherit;
+  color: var(--cadet);
+}
+
+.formInput:focus,
+.formSelect:focus,
+.formTextarea:focus {
+  outline: none;
+  border-color: var(--orange-soda);
+  box-shadow: 0 0 0 3px hsla(9, 100%, 62%, 0.1);
+  color: var(--dark-jungle-green);
+}
+
+.formInput::placeholder,
+.formTextarea::placeholder {
+  color: var(--opal);
+  opacity: 0.7;
+}
+
+.formSelect {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 12px center;
+  background-repeat: no-repeat;
+  background-size: 16px;
+  padding-right: 40px;
+}
+
+.formTextarea {
+  resize: vertical;
+  min-height: 120px;
+  font-family: inherit;
+}
+
+.formCheckbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: var(--fs-5);
+  color: var(--cadet);
+}
+
+.formCheckbox input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--orange-soda);
+}
+
+.formBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+  background: linear-gradient(135deg, var(--orange-soda), #ff6b35);
+  color: var(--white);
+  border: none;
+  padding: 15px 30px;
+  border-radius: 8px;
+  font-weight: var(--fw-600);
+  font-size: var(--fs-5);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+  cursor: pointer;
+  font-family: inherit;
+  min-height: 50px;
+}
+
+.formBtn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--dark-jungle-green), #1a4d2e);
+  transition: left 0.3s ease;
+  z-index: -1;
+}
+
+.formBtn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(255, 107, 53, 0.4);
+  color: var(--white);
+}
+
+.formBtn:hover::before {
+  left: 0;
+}
+
+.formBtn:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+}
+
+.formBtn ion-icon {
+  font-size: 18px;
+}
+
+/* Responsive styles */
+@media (min-width: 992px) {
+  .contactContent {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+    gap: 60px;
+  }
+
+  .contactInfo {
+    text-align: left;
+  }
+}

@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { IoLocationOutline, IoCallOutline, IoMailOutline, IoLogoWhatsapp, IoPaperPlaneOutline } from '.'
+import styles from './Contact.module.css'
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -81,60 +82,65 @@ This message was sent from the Tony Properties website contact form.`
   }
 
   return (
-    <section className="contact" id="contact">
-      <div className="container">
-        <p className="section-subtitle">Contact Us</p>
-        <h2 className="h2 section-title">Get In Touch</h2>
+    <section className={styles.contact} id="contact">
+      <div className={`container ${styles.contactContainer}`}>
+        <p className={`section-subtitle ${styles.sectionSubtitle}`}>Contact Us</p>
+        <h2 className={`h2 section-title ${styles.sectionTitle}`}>Get In Touch</h2>
 
-        <div className="contact-content">
-          <div className="contact-info">
-            <h3 className="h3 contact-title">Contact Information</h3>
+        <div className={styles.contactContent}>
+          <div className={styles.contactInfo}>
+            <h3 className={`h3 ${styles.contactTitle}`}>Contact Information</h3>
 
-            <ul className="contact-list">
+            <ul className={styles.contactList}>
               <li>
-                <a href="#" className="contact-link">
+                <a href="#" className={styles.contactLink}>
                   <IoLocationOutline />
                   <address>A2/15, Near Plazzo Inn, Janakpuri, Delhi</address>
                 </a>
               </li>
 
               <li>
-                <a href="tel:+919811008968" className="contact-link">
+                <a href="tel:+919811008968" className={styles.contactLink}>
                   <IoCallOutline />
                   <span>+91 9811008968</span>
                 </a>
               </li>
+              <li>
+                <a href="tel:011-42720367" className={styles.contactLink}>
+                  <IoCallOutline />
+                  <span>011-42720367</span>
+                </a>
+              </li>
 
               <li>
-                <a href="mailto:tonyproperties1958@gmail.com" className="contact-link">
+                <a href="mailto:tonyproperties1958@gmail.com" className={styles.contactLink}>
                   <IoMailOutline />
                   <span>tonyproperties1958@gmail.com</span>
                 </a>
               </li>
 
               <li>
-                <a href="https://wa.me/+919811008968" className="contact-link" target="_blank" rel="noopener noreferrer">
+                <a href="https://wa.me/+919811008968" className={styles.contactLink} target="_blank" rel="noopener noreferrer">
                   <IoLogoWhatsapp />
                   <span>WhatsApp</span>
                 </a>
               </li>
             </ul>
 
-            <div className="contact-hours">
+            <div className={styles.contactHours}>
               <h4 className="h4">Business Hours</h4>
-              <p>Monday - Saturday: 9:00 AM - 7:00 PM</p>
-              <p>Sunday: 10:00 AM - 5:00 PM</p>
+              <p>Monday - Sunday: 10:30 AM - 7:30 PM</p>
             </div>
           </div>
 
-          <form className="contact-form" onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label htmlFor="name" className="form-label">Full Name *</label>
+          <form className={styles.contactForm} onSubmit={handleSubmit}>
+            <div className={styles.formGroup}>
+              <label htmlFor="name" className={styles.formLabel}>Full Name *</label>
               <input
                 type="text"
                 id="name"
                 name="name"
-                className="form-input"
+                className={styles.formInput}
                 value={formData.name}
                 onChange={handleInputChange}
                 required
@@ -142,26 +148,26 @@ This message was sent from the Tony Properties website contact form.`
               />
             </div>
 
-            <div className="form-group">
-              <label htmlFor="email" className="form-label">Email Address</label>
+            <div className={styles.formGroup}>
+              <label htmlFor="email" className={styles.formLabel}>Email Address</label>
               <input
                 type="email"
                 id="email"
                 name="email"
-                className="form-input"
+                className={styles.formInput}
                 value={formData.email}
                 onChange={handleInputChange}
                 placeholder="Enter your email address"
               />
             </div>
 
-            <div className="form-group">
-              <label htmlFor="phone" className="form-label">Phone Number *</label>
+            <div className={styles.formGroup}>
+              <label htmlFor="phone" className={styles.formLabel}>Phone Number *</label>
               <input
                 type="tel"
                 id="phone"
                 name="phone"
-                className="form-input"
+                className={styles.formInput}
                 value={formData.phone}
                 onChange={handleInputChange}
                 required
@@ -169,12 +175,12 @@ This message was sent from the Tony Properties website contact form.`
               />
             </div>
 
-            <div className="form-group">
-              <label htmlFor="subject" className="form-label">Subject *</label>
+            <div className={styles.formGroup}>
+              <label htmlFor="subject" className={styles.formLabel}>Subject *</label>
               <select
                 id="subject"
                 name="subject"
-                className="form-select"
+                className={styles.formSelect}
                 value={formData.subject}
                 onChange={handleInputChange}
                 required
@@ -189,12 +195,12 @@ This message was sent from the Tony Properties website contact form.`
               </select>
             </div>
 
-            <div className="form-group">
-              <label htmlFor="message" className="form-label">Message *</label>
+            <div className={styles.formGroup}>
+              <label htmlFor="message" className={styles.formLabel}>Message *</label>
               <textarea
                 id="message"
                 name="message"
-                className="form-textarea"
+                className={styles.formTextarea}
                 rows={5}
                 value={formData.message}
                 onChange={handleInputChange}
@@ -203,7 +209,7 @@ This message was sent from the Tony Properties website contact form.`
               ></textarea>
             </div>
 
-            <button type="submit" className="btn form-btn">
+            <button type="submit" className={`btn ${styles.formBtn}`}>
               <IoPaperPlaneOutline />
               <span>Send Message</span>
             </button>

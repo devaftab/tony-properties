@@ -1,0 +1,169 @@
+/*-----------------------------------*\
+  #ABOUT
+\*-----------------------------------*/
+
+.about { 
+  padding-block: var(--section-padding); 
+}
+
+.aboutContainer {
+  /* Container styles */
+}
+
+.aboutBanner {
+  position: relative;
+  margin-bottom: 40px;
+}
+
+.aboutBanner > img {
+  max-width: max-content;
+  width: 100%;
+}
+
+.aboutBanner .absImg {
+  position: absolute;
+  bottom: 100px;
+  left: 15px;
+  width: 50%;
+  border-radius: 4px;
+}
+
+.aboutContent {
+  /* Content wrapper styles */
+}
+
+.sectionSubtitle { 
+  margin-inline: 0; 
+}
+
+.sectionTitle {
+  --text-align: left;
+  --margin-bottom: 15px;
+}
+
+.aboutText {
+  color: var(--cadet);
+  font-size: var(--fs-5);
+  line-height: 1.7;
+  margin-bottom: 30px;
+}
+
+.aboutList { 
+  margin-bottom: 30px; 
+}
+
+.aboutItem {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.aboutItemIcon {
+  background: var(--misty-rose);
+  height: 45px;
+  min-width: 45px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+
+.aboutItemIcon ion-icon {
+  color: var(--orange-soda);
+  font-size: 18px;
+}
+
+.aboutItemText {
+  color: var(--cadet);
+  font-size: var(--fs-5);
+}
+
+.about .callout {
+  background: hsla(7, 78%, 53%, 0.05);
+  color: var(--cadet);
+  font-size: var(--fs-5);
+  font-weight: var(--fw-500);
+  line-height: 1.8;
+  padding: 20px 25px;
+  border-left: 4px solid var(--orange-soda);
+  margin-bottom: 40px;
+}
+
+.btn {
+  background: linear-gradient(135deg, var(--orange-soda), #ff6b35);
+  color: var(--white);
+  border: none;
+  padding: 15px 30px;
+  border-radius: 8px;
+  font-weight: var(--fw-600);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+  display: inline-block;
+  text-align: center;
+}
+
+/* Responsive styles */
+@media (min-width: 768px) {
+  .sectionTitle { 
+    max-width: 30ch; 
+  }
+
+  .aboutText { 
+    max-width: 55ch 
+  }
+
+  .aboutList {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (min-width: 992px) {
+  .aboutContainer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    gap: 60px;
+  }
+
+  .aboutBanner { 
+    margin-bottom: 0; 
+  }
+
+  .aboutBanner > img { 
+    width: 100%; 
+  }
+}
+
+/* Button styles specific to about */
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--dark-jungle-green), #1a4d2e);
+  transition: left 0.3s ease;
+  z-index: -1;
+}
+
+.btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(255, 107, 53, 0.4);
+  color: var(--white);
+}
+
+.btn:hover::before {
+  left: 0;
+}
+
+.btn:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+}

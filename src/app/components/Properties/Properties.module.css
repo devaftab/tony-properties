@@ -1,0 +1,233 @@
+/*-----------------------------------*\
+  #PROPERTIES
+\*-----------------------------------*/
+
+.property { 
+  padding-block: var(--section-padding); 
+}
+
+.propertyList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 30px;
+  max-width: 100%;
+}
+
+.propertyCard {
+  border: 1px solid var(--alice-blue);
+  box-shadow: var(--shadow-2);
+}
+
+.propertyCard .cardBanner {
+  position: relative;
+  aspect-ratio: 2 / 1.5;
+  overflow: hidden;
+}
+
+.propertyCard .cardBanner a { 
+  height: 100%; 
+}
+
+.propertyCard .cardBanner img {
+  height: 100%;
+  object-fit: cover;
+  transition: 0.5s ease;
+}
+
+.propertyCard:hover .cardBanner img { 
+  transform: scale(1.1); 
+}
+
+.propertyCard .cardBanner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, hsla(0, 0%, 0%, 0.95), transparent 30%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.propertyCard .bannerActions {
+  position: absolute;
+  bottom: 15px;
+  left: 15px;
+  right: 15px;
+  display: flex;
+  flex-wrap: wrap-reverse;
+  align-items: center;
+  gap: 15px 10px;
+  z-index: 1;
+}
+
+.bannerActionsBtn {
+  color: var(--white);
+  font-size: var(--fs-6);
+  line-height: 1;
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.bannerActionsBtn ion-icon { 
+  font-size: 16px; 
+}
+
+.bannerActionsBtn:first-child { 
+  margin-right: auto; 
+}
+
+.bannerActionsBtn:is(:hover, :focus) { 
+  color: var(--orange-soda); 
+}
+
+.propertyCard .cardContent {
+  padding: 30px 15px 15px;
+  border-bottom: 1px solid hsla(0, 0%, 0%, 0.1);
+}
+
+.cardPrice {
+  color: var(--orange-soda);
+  font-family: var(--ff-poppins);
+  font-size: var(--fs-5);
+  margin-bottom: 5px;
+}
+
+.cardPrice strong {
+  font-size: var(--fs-4);
+  font-weight: var(--fw-600);
+}
+
+.propertyCard .cardTitle {
+  --font-weight: var(--fw-600);
+  margin-bottom: 15px;
+}
+
+.propertyCard .cardTitle > a:is(:hover, :focus) { 
+  color: var(--orange-soda); 
+}
+
+.propertyCard .cardText {
+  color: var(--cadet);
+  font-size: var(--fs-5);
+  line-height: 1.8;
+  margin-bottom: 25px;
+}
+
+.propertyCard .cardList {
+  display: flex;
+  align-items: center;
+  row-gap: 15px;
+}
+
+.propertyCard .cardItem {
+  padding-block: 5px;
+  color: var(--cadet);
+  font-size: var(--fs-5);
+}
+
+.propertyCard .cardItem:not(:last-child) {
+  padding-right: 15px;
+  border-right: 1px solid hsla(0, 0%, 0%, 0.2);
+  margin-right: 20px;
+}
+
+.propertyCard .cardItem :is(strong, ion-icon) { 
+  display: inline-block; 
+}
+
+.propertyCard .cardItem strong {
+  margin-right: 6px;
+}
+
+.propertyCard .cardItem ion-icon {
+  margin-left: 20px !important;
+  margin-bottom: -2px;
+  padding: 0 8px !important;
+}
+
+.propertyCard .cardItem span { 
+  margin-top: 5px; 
+}
+
+.exploreBtn {
+  margin-top: 20px;
+  width: 100%;
+  display: flex;
+  flex-direction: row-reverse;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: linear-gradient(135deg, var(--orange-soda), #ff6b35);
+  color: var(--white);
+  border: none;
+  padding: 15px 30px;
+  border-radius: 8px;
+  font-weight: var(--fw-600);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+}
+
+.exploreBtn span {
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.exploreBtn ion-icon {
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.exploreBtn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--dark-jungle-green), #1a4d2e);
+  transition: left 0.3s ease;
+  z-index: -1;
+}
+
+.exploreBtn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(255, 107, 53, 0.4);
+  color: var(--white);
+}
+
+.exploreBtn:hover::before {
+  left: 0;
+}
+
+.exploreBtn:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+}
+
+/* Responsive styles */
+@media (min-width: 600px) {
+  .property .container {
+    max-width: unset;
+    padding-inline: 25px;
+  }
+
+  .propertyList {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 20px;
+  }
+}
+
+@media (min-width: 992px) {
+  .propertyCard .cardContent { 
+    padding-inline: 30px; 
+  }
+
+  .propertyList {
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 25px;
+  }
+}

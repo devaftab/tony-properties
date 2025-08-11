@@ -1,0 +1,132 @@
+/*-----------------------------------*\
+  #HERO
+\*-----------------------------------*/
+
+.hero {
+  background: var(--cultured-2);
+  padding-block: var(--section-padding);
+}
+
+.heroContainer {
+  /* Container styles */
+}
+
+.sectionSubtitle {
+  /* Inherit from global styles */
+}
+
+.sectionTitle {
+  /* Inherit from global styles */
+}
+
+.heroContent { 
+  margin-bottom: 60px; 
+}
+
+.heroSubtitle {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 20px;
+}
+
+.heroSubtitle ion-icon { 
+  color: var(--orange-soda); 
+}
+
+.heroSubtitle span {
+  color: var(--dark-jungle-green);
+  font-size: var(--fs-5);
+  font-weight: var(--fw-700);
+}
+
+.heroTitle { 
+  margin-bottom: 20px; 
+}
+
+.heroText {
+  color: var(--cadet);
+  font-size: var(--fs-5);
+  line-height: 1.8;
+  padding-left: 15px;
+  border-left: 1px solid;
+  margin-bottom: 30px;
+}
+
+.heroBanner {
+  /* Add any specific hero banner styles if needed */
+}
+
+/* Responsive styles */
+@media (min-width: 768px) {
+  .heroContent { 
+    max-width: 400px; 
+  }
+}
+
+@media (min-width: 992px) {
+  .heroContent {
+    max-width: unset;
+    margin-bottom: 0;
+  }
+
+  .heroContainer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+  }
+}
+
+@media (min-width: 1200px) {
+  .heroText {
+    padding-left: 30px;
+    max-width: 450px;
+    margin-bottom: 40px;
+  }
+}
+
+/* Button styles specific to hero */
+.btn {
+  background: linear-gradient(135deg, var(--orange-soda), #ff6b35);
+  color: var(--white);
+  border: none;
+  padding: 15px 30px;
+  border-radius: 8px;
+  font-weight: var(--fw-600);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+  display: inline-block;
+  text-align: center;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--dark-jungle-green), #1a4d2e);
+  transition: left 0.3s ease;
+  z-index: -1;
+}
+
+.btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(255, 107, 53, 0.4);
+  color: var(--white);
+}
+
+.btn:hover::before {
+  left: 0;
+}
+
+.btn:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+}

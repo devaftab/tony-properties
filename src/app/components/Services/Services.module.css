@@ -1,0 +1,108 @@
+/*-----------------------------------*\
+  #SERVICE
+\*-----------------------------------*/
+
+.service {
+  background: var(--cultured-2);
+  padding-block: var(--section-padding);
+}
+
+.serviceContainer {
+  /* Container styles */
+}
+
+.sectionSubtitle {
+  /* Inherit from global styles */
+}
+
+.sectionTitle {
+  /* Inherit from global styles */
+}
+
+.serviceList {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+}
+
+.serviceList > li {
+  /* Base list item styles */
+}
+
+.serviceCard {
+  position: relative;
+  background: var(--white);
+  text-align: left;
+  padding: 40px 30px;
+  box-shadow: var(--shadow-2);
+  min-height: 520px;
+  display: flex;
+  flex-direction: column;
+}
+
+.serviceCard .cardIcon {
+  width: max-content;
+  margin-inline: auto;
+  margin-bottom: 20px;
+}
+
+.cardTitle { 
+  margin-bottom: 15px; 
+  text-align: center;
+}
+
+.cardTitle > a:is(:hover, :focus) { 
+  color: var(--orange-soda); 
+}
+
+.cardText {
+  color: var(--light-gray);
+  line-height: 1.8;
+  margin-bottom: 25px;
+  text-align: center;
+  flex-grow: 1;
+}
+
+.cardLink {
+  color: var(--opal);
+  font-size: var(--fs-5);
+  font-weight: var(--fw-600);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  margin-top: auto;
+}
+
+.serviceCard:is(:hover, :focus) .cardLink { 
+  color: var(--orange-soda); 
+}
+
+.serviceCard::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 4px;
+  background: var(--orange-soda);
+  transition: var(--transition);
+}
+
+.serviceCard:is(:hover, :focus)::after { 
+  width: 100%; 
+}
+
+/* Responsive styles */
+@media (min-width: 600px) {
+  .serviceList > li { 
+    width: calc(50% - 15px); 
+  }
+}
+
+@media (min-width: 992px) {
+  .serviceList > li { 
+    width: calc(33.33% - 20px); 
+  }
+}

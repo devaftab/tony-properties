@@ -1,12 +1,13 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { IoCheckmarkCircleOutline } from '.'
+import styles from './About.module.css'
 
 export default function About() {
   return (
-    <section className="about" id="about">
-      <div className="container">
-        <figure className="about-banner">
+    <section className={styles.about} id="about">
+      <div className={`container ${styles.aboutContainer}`}>
+        <figure className={styles.aboutBanner}>
           <Image 
             src="/images/about-banner-1.png" 
             alt="House interior"
@@ -16,17 +17,17 @@ export default function About() {
           <Image 
             src="/images/about-banner-2.jpg" 
             alt="House interior" 
-            className="abs-img"
+            className={styles.absImg}
             width={300}
             height={200}
           />
         </figure>
 
-        <div className="about-content">
-          <p className="section-subtitle">About Us</p>
-          <h2 className="h2 section-title">Tony Properties</h2>
+        <div className={styles.aboutContent}>
+          <p className={`section-subtitle ${styles.sectionSubtitle}`}>About Us</p>
+          <h2 className={`h2 section-title ${styles.sectionTitle}`}>Tony Properties</h2>
 
-          <p className="about-text">
+          <p className={styles.aboutText}>
             Tony Properties is a leading property dealer and consultant in Janak Puri, New Delhi, offering
             professional services in property sale, purchase, and renting. Founded and managed by Gurmeet Singh
             (Tony), we have built a strong reputation for delivering transparent, reliable, and profitable real estate
@@ -36,41 +37,41 @@ export default function About() {
             spaces.
           </p>
 
-          <ul className="about-list">
-            <li className="about-item">
-              <div className="about-item-icon">
+          <ul className={styles.aboutList}>
+            <li className={styles.aboutItem}>
+              <div className={styles.aboutItemIcon}>
                 <IoCheckmarkCircleOutline />
               </div>
-              <p className="about-item-text">Sale & Purchase of Residential and Commercial Properties.</p>
+              <p className={styles.aboutItemText}>Sale & Purchase of Residential and Commercial Properties.</p>
             </li>
 
-            <li className="about-item">
-              <div className="about-item-icon">
+            <li className={styles.aboutItem}>
+              <div className={styles.aboutItemIcon}>
                 <IoCheckmarkCircleOutline />
               </div>
-              <p className="about-item-text">Rental Properties for Homes, Offices, and Shops</p>
+              <p className={styles.aboutItemText}>Rental Properties for Homes, Offices, and Shops</p>
             </li>
 
-            <li className="about-item">
-              <div className="about-item-icon">
+            <li className={styles.aboutItem}>
+              <div className={styles.aboutItemIcon}>
                 <IoCheckmarkCircleOutline />
               </div>
-              <p className="about-item-text">Property Collaboration & Development Projects</p>
+              <p className={styles.aboutItemText}>Property Collaboration & Development Projects</p>
             </li>
             
-            <li className="about-item">
-              <div className="about-item-icon">
+            <li className={styles.aboutItem}>
+              <div className={styles.aboutItemIcon}>
                 <IoCheckmarkCircleOutline />
               </div>
-              <p className="about-item-text">Finance Advice for Real Estate Investments</p>
+              <p className={styles.aboutItemText}>Finance Advice for Real Estate Investments</p>
             </li>
           </ul>
 
-          <p className="callout">
+          <p className={styles.callout}>
             Tony Properties – Turning Your Real Estate Dreams into Reality in Janak Puri
           </p>
 
-          <Link href="#service" className="btn">Our Services</Link>
+          <Link href="#service" className={`btn ${styles.btn}`}>Our Services</Link>
         </div>
       </div>
     </section>
