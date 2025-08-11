@@ -1,0 +1,45 @@
+import Image from 'next/image'
+import Link from 'next/link'
+import { IoHomeOutline } from 'react-icons/io5'
+
+export default function Hero() {
+  return (
+    <section className="hero" id="home">
+      <div className="container">
+        <div className="hero-content">
+          <h1 className="hero-title">
+            Tony Properties – Best Property Dealer in Janak Puri, New Delhi
+          </h1>
+          <p className="hero-subtitle">
+            <IoHomeOutline />
+            <span>Tony Properties</span>
+          </p>
+
+          <p className="hero-text">
+            Tony Properties – Best Property Dealer in Janak Puri, New Delhi
+            Looking to buy, sell, or rent property in Janak Puri? At Tony Properties, led by Gurmeet Singh (Tony), we
+            offer expert property consultancy, finance advice, building, and collaboration services. Whether it's
+            residential flats, commercial shops, builder floors, or rental spaces, we ensure, you get the best deals in
+            New Delhi real estate.
+          </p>
+
+          <button className="btn">
+            <Link className="btn-link" href="#contact" rel="noopener">
+              Make An Enquiry
+            </Link>
+          </button>
+        </div>
+
+        <figure className="hero-banner">
+          <Image 
+            src="/images/hero-banner-1.jpg" 
+            alt="Modern house model" 
+            className="w-100"
+            width={600}
+            height={400}
+          />
+        </figure>
+      </div>
+    </section>
+  )
+}
