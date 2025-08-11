@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { IoArrowForwardOutline } from 'react-icons/io5'
+import { IoArrowForwardOutline } from '.'
 
 export default function Services() {
   return (

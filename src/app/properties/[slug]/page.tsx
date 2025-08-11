@@ -2,7 +2,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import Header from '../../components/Header'
 import Footer from '../../components/Footer'
-import { IoLocationOutline, IoBedOutline, IoHomeOutline, IoCheckmarkCircleOutline } from 'react-icons/io5'
+import { IoLocationOutline, IoBedOutline, IoCheckmarkCircleOutline } from 'react-icons/io5'
 
 interface PropertyPageProps {
   params: {
@@ -133,7 +133,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
     }
   }
 
-  const propertyData = getPropertyData(slug)
+  const propertyData =  getPropertyData(slug)
 
   if (!propertyData) {
     return (
@@ -172,7 +172,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
               
               <div className="property-hero-image">
                 <Image 
-                  src={`/images/property-${slug === '3bhk' ? '1' : slug === 'apartments' ? '2' : slug === 'floor' ? '3' : '4'}.jpg`} 
+                  src={`/images/property-${slug === '3bhk' ? '1' : slug === 'apartments' ? '2' : slug === 'floor' ? '3' : '1'}.jpg`} 
                   alt={propertyData.title} 
                   className="w-100"
                   width={600}

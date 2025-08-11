@@ -1,4 +1,5 @@
-import { IoCarSportOutline, IoArrowForwardOutline, IoWaterOutline, IoShieldCheckmarkOutline, IoFitnessOutline } from 'react-icons/io5'
+import { IoCarSportOutline, IoArrowForwardOutline, IoWaterOutline, IoShieldCheckmarkOutline, IoFitnessOutline } from '.'
+
 export default function Features() {
   return (
     <section className="features">

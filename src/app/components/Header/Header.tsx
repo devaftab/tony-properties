@@ -1,35 +1,59 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import Link from 'next/link'
-import { IoMenuOutline, IoCloseOutline } from 'react-icons/io5'
+import { IoMenuOutline, IoCloseOutline } from '.'
 
 export default function Header() {
   const [isNavbarActive, setIsNavbarActive] = useState(false)
   const [isOverlayActive, setIsOverlayActive] = useState(false)
   const [isHeaderActive, setIsHeaderActive] = useState(false)
 
-  const toggleNavbar = () => {
-    setIsNavbarActive(!isNavbarActive)
-    setIsOverlayActive(!isOverlayActive)
-  }
+  const toggleNavbar = useCallback(() => {
+    setIsNavbarActive(prev => !prev)
+    setIsOverlayActive(prev => !prev)
+  }, [])
 
-  const closeNavbar = () => {
+  const closeNavbar = useCallback(() => {
     setIsNavbarActive(false)
     setIsOverlayActive(false)
-  }
+  }, [])
 
   useEffect(() => {
+    let ticking = false
+    
     const handleScroll = () => {
-      setIsHeaderActive(window.scrollY >= 400)
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          const shouldBeActive = window.scrollY >= 5
+          setIsHeaderActive(shouldBeActive)
+          ticking = false
+        })
+        ticking = true
+      }
     }
 
-    window.addEventListener('scroll', handleScroll)
+    window.addEventListener('scroll', handleScroll, { passive: true })
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
+  const headerClassName = useMemo(() => 
+    `header ${isHeaderActive ? 'active' : ''}`, 
+    [isHeaderActive]
+  )
+
+  const overlayClassName = useMemo(() => 
+    `overlay ${isOverlayActive ? 'active' : ''}`, 
+    [isOverlayActive]
+  )
+
+  const navbarClassName = useMemo(() => 
+    `navbar ${isNavbarActive ? 'active' : ''}`, 
+    [isNavbarActive]
+  )
+
   return (
-    <header className={`header ${isHeaderActive ? 'active' : ''}`}>
-      <div className={`overlay ${isOverlayActive ? 'active' : ''}`} onClick={closeNavbar}></div>
+    <header className={headerClassName}>
+      <div className={overlayClassName} onClick={closeNavbar}></div>
 
       <div className="header-bottom">
         <div className="container">
@@ -37,7 +61,7 @@ export default function Header() {
             <h1 className="logo-text">Tony Properties</h1>
           </Link>
 
-          <nav className={`navbar ${isNavbarActive ? 'active' : ''}`}>
+          <nav className={navbarClassName}>
             <div className="navbar-top">
               <Link href="/" className="logo">
                 <h1 className="logo-text">Tony Properties</h1>
@@ -55,19 +79,19 @@ export default function Header() {
             <div className="navbar-bottom">
               <ul className="navbar-list">
                 <li>
-                  <Link href="/#home" className="navbar-link" onClick={closeNavbar}>Home</Link>
+                  <Link href="/" className="navbar-link" onClick={closeNavbar}>Home</Link>
                 </li>
                 <li>
-                  <Link href="/#about" className="navbar-link" onClick={closeNavbar}>About</Link>
+                  <Link href="/about" className="navbar-link" onClick={closeNavbar}>About</Link>
                 </li>
                 <li>
-                  <Link href="/#service" className="navbar-link" onClick={closeNavbar}>Service</Link>
+                  <Link href="/services" className="navbar-link" onClick={closeNavbar}>Services</Link>
                 </li>
                 <li>
-                  <Link href="/#property" className="navbar-link" onClick={closeNavbar}>Property</Link>
+                  <Link href="/properties" className="navbar-link" onClick={closeNavbar}>Properties</Link>
                 </li>
                 <li>
-                  <Link href="/#contact" className="navbar-link" onClick={closeNavbar}>Contact</Link>
+                  <Link href="/contact" className="navbar-link" onClick={closeNavbar}>Contact</Link>
                 </li>
               </ul>
             </div>

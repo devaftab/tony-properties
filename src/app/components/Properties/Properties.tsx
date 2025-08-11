@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { IoLocationOutline, IoCameraOutline, IoFilmOutline, IoBedOutline, IoManOutline, IoHomeOutline, IoArrowForwardOutline } from 'react-icons/io5'
+import { IoLocationOutline, IoCameraOutline, IoFilmOutline, IoBedOutline, IoManOutline, IoHomeOutline, IoArrowForwardOutline } from '.'
 
 export default function Properties() {
   return (

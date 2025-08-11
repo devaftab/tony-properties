@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { IoCheckmarkCircleOutline } from 'react-icons/io5'
+import { IoCheckmarkCircleOutline } from '.'
 
 export default function About() {
   return (

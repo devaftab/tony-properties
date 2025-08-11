@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { IoLocationOutline, IoCallOutline, IoMailOutline, IoLogoWhatsapp, IoPaperPlaneOutline } from 'react-icons/io5'
+import { IoLocationOutline, IoCallOutline, IoMailOutline, IoLogoWhatsapp, IoPaperPlaneOutline } from '.'
 
 export default function Contact() {
   const [formData, setFormData] = useState({
@@ -104,13 +104,6 @@ This message was sent from the Tony Properties website contact form.`
                   <span>+91 9811008968</span>
                 </a>
               </li>
-              
-              <li>
-                <a href="tel:01142720367" className="contact-link">
-                  <IoCallOutline />
-                  <span>01142720367</span>
-                </a>
-              </li>
 
               <li>
                 <a href="mailto:tonyproperties1958@gmail.com" className="contact-link">
@@ -122,99 +115,99 @@ This message was sent from the Tony Properties website contact form.`
               <li>
                 <a href="https://wa.me/+919811008968" className="contact-link" target="_blank" rel="noopener noreferrer">
                   <IoLogoWhatsapp />
-                  <span>WhatsApp: +91 9811008968</span>
+                  <span>WhatsApp</span>
                 </a>
               </li>
             </ul>
 
             <div className="contact-hours">
               <h4 className="h4">Business Hours</h4>
-              <p>Monday - Sunday: 10:00 AM - 7:30 PM</p>
+              <p>Monday - Saturday: 9:00 AM - 7:00 PM</p>
+              <p>Sunday: 10:00 AM - 5:00 PM</p>
             </div>
           </div>
 
-          <div className="contact-form">
-            <h3 className="h3 contact-title">Send us a Message</h3>
+          <form className="contact-form" onSubmit={handleSubmit}>
+            <div className="form-group">
+              <label htmlFor="name" className="form-label">Full Name *</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                className="form-input"
+                value={formData.name}
+                onChange={handleInputChange}
+                required
+                placeholder="Enter your full name"
+              />
+            </div>
 
-            <form onSubmit={handleSubmit} className="form">
-              <div className="form-group">
-                <label htmlFor="name" className="form-label">Full Name *</label>
-                <input 
-                  type="text" 
-                  id="name" 
-                  name="name" 
-                  className="form-input" 
-                  value={formData.name}
-                  onChange={handleInputChange}
-                  required 
-                />
-              </div>
+            <div className="form-group">
+              <label htmlFor="email" className="form-label">Email Address</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                className="form-input"
+                value={formData.email}
+                onChange={handleInputChange}
+                placeholder="Enter your email address"
+              />
+            </div>
 
-              <div className="form-group">
-                <label htmlFor="email" className="form-label">Email Address (Optional)</label>
-                <input 
-                  type="email" 
-                  id="email" 
-                  name="email" 
-                  className="form-input"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                />
-              </div>
+            <div className="form-group">
+              <label htmlFor="phone" className="form-label">Phone Number *</label>
+              <input
+                type="tel"
+                id="phone"
+                name="phone"
+                className="form-input"
+                value={formData.phone}
+                onChange={handleInputChange}
+                required
+                placeholder="Enter your phone number"
+              />
+            </div>
 
-              <div className="form-group">
-                <label htmlFor="phone" className="form-label">Phone Number *</label>
-                <input 
-                  type="tel" 
-                  id="phone" 
-                  name="phone" 
-                  className="form-input"
-                  value={formData.phone}
-                  onChange={handleInputChange}
-                  required 
-                />
-              </div>
+            <div className="form-group">
+              <label htmlFor="subject" className="form-label">Subject *</label>
+              <select
+                id="subject"
+                name="subject"
+                className="form-select"
+                value={formData.subject}
+                onChange={handleInputChange}
+                required
+              >
+                <option value="">Select a subject</option>
+                <option value="Property Inquiry">Property Inquiry</option>
+                <option value="Rental Request">Rental Request</option>
+                <option value="Sales Inquiry">Sales Inquiry</option>
+                <option value="General Question">General Question</option>
+                <option value="Appointment Request">Appointment Request</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
 
-              <div className="form-group">
-                <label htmlFor="subject" className="form-label">Subject *</label>
-                <select 
-                  id="subject" 
-                  name="subject" 
-                  className="form-select"
-                  value={formData.subject}
-                  onChange={handleInputChange}
-                  required
-                >
-                  <option value="">Select a subject</option>
-                  <option value="property-inquiry">Property Inquiry</option>
-                  <option value="buy-property">Buy Property</option>
-                  <option value="rent-property">Rent Property</option>
-                  <option value="sell-property">Sell Property</option>
-                  <option value="general-inquiry">General Inquiry</option>
-                  <option value="appointment">Schedule Appointment</option>
-                </select>
-              </div>
+            <div className="form-group">
+              <label htmlFor="message" className="form-label">Message *</label>
+              <textarea
+                id="message"
+                name="message"
+                className="form-textarea"
+                rows={5}
+                value={formData.message}
+                onChange={handleInputChange}
+                required
+                placeholder="Please describe your inquiry or request..."
+              ></textarea>
+            </div>
 
-              <div className="form-group">
-                <label htmlFor="message" className="form-label">Message *</label>
-                <textarea 
-                  id="message" 
-                  name="message" 
-                  className="form-textarea" 
-                  rows={5}
-                  placeholder="Please describe your inquiry in detail..."
-                  value={formData.message}
-                  onChange={handleInputChange}
-                  required
-                ></textarea>
-              </div>
-
-              <button type="submit" className="btn form-btn">
-                <span>Send Message</span>
-                <IoPaperPlaneOutline />
-              </button>
-            </form>
-          </div>
+            <button type="submit" className="btn form-btn">
+              <IoPaperPlaneOutline />
+              <span>Send Message</span>
+            </button>
+          </form>
         </div>
       </div>
     </section>

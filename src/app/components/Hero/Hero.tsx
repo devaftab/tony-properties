@@ -1,6 +1,6 @@
 import Image from 'next/image'
 import Link from 'next/link'
-import { IoHomeOutline } from 'react-icons/io5'
+import { IoHomeOutline } from '.'
 
 export default function Hero() {
   return (

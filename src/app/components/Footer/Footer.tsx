@@ -1,5 +1,6 @@
 import Link from 'next/link'
-import { IoLocationOutline, IoCallOutline, IoMailOutline, IoLogoWhatsapp } from 'react-icons/io5'
+import { IoLocationOutline, IoCallOutline, IoMailOutline, IoLogoWhatsapp } from '.'
+
 export default function Footer() {
   return (
     <footer className="footer">
