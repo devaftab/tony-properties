@@ -1,7 +1,7 @@
 'use client'
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
-import { IoAddOutline, IoSearchOutline, IoTrashOutline, IoEyeOutline } from 'react-icons/io5'
+import { IoAddOutline, IoSearchOutline, IoTrashOutline } from 'react-icons/io5'
 import {MdOutlineEdit} from 'react-icons/md'
 import { allProperties, Property } from '../../data/properties'
 
@@ -9,7 +9,7 @@ export default function AdminProperties() {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedFilter, setSelectedFilter] = useState('all')
   const [sortBy, setSortBy] = useState('id')
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc')
   const [selectedProperties, setSelectedProperties] = useState<number[]>([])
 
   // Filter and search properties
@@ -187,76 +187,89 @@ export default function AdminProperties() {
               <th onClick={() => handleSort('price')} className="sortable">
                 Price {sortBy === 'price' && (sortOrder === 'asc' ? '↑' : '↓')}
               </th>
-              <th>Type</th>
-              <th>Details</th>
-              <th>Actions</th>
+                             <th>Type</th>
+               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
-            {filteredProperties.map((property) => (
-              <tr key={property.id}>
-                <td>
-                  <input
-                    type="checkbox"
-                    checked={selectedProperties.includes(property.id)}
-                    onChange={() => handleSelectProperty(property.id)}
-                  />
-                </td>
-                <td>{property.id}</td>
-                <td>
-                  <div className="property-info">
-                    <img src={property.image} alt={property.title} className="property-thumbnail" />
-                    <div>
-                      <h4>{property.title}</h4>
-                      <p className="property-description">{property.description.substring(0, 60)}...</p>
-                    </div>
-                  </div>
-                </td>
-                <td>{property.location}</td>
-                <td>
-                  <span className="price">{property.price}{property.period}</span>
-                </td>
-                <td>
-                  <span className={`badge ${property.badgeClass}`}>
-                    {property.badge}
-                  </span>
-                </td>
-                <td>
-                  <div className="property-details">
-                    <span>{property.bedrooms} beds</span>
-                    <span>{property.bathrooms} baths</span>
-                    <span>{property.area} {property.areaUnit}</span>
-                  </div>
-                </td>
-                <td>
-                  <div className="action-buttons">
-                    <Link
-                      href={`/properties/${property.slug}`}
-                      className="btn-icon"
-                      title="View Property"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      <IoEyeOutline />
-                    </Link>
-                    <Link
-                      href={`/admin/edit-property/${property.id}`}
-                      className="btn-icon edit"
-                      title="Edit Property"
-                    >
-                      <MdOutlineEdit />
-                    </Link>
-                    <button
-                      className="btn-icon delete"
-                      onClick={() => handleDeleteProperty(property.id, property.title)}
-                      title="Delete Property"
-                    >
-                      <IoTrashOutline />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                         {filteredProperties.map((property) => (
+               <tr key={property.id} className="property-row">
+                 <td>
+                   <input
+                     type="checkbox"
+                     checked={selectedProperties.includes(property.id)}
+                     onChange={() => handleSelectProperty(property.id)}
+                   />
+                 </td>
+                 <td>{property.id}</td>
+                 <td>
+                   <Link 
+                     href={`/properties/${property.slug}`} 
+                     target="_blank" 
+                     rel="noopener noreferrer"
+                     className="property-link"
+                   >
+                     <div className="property-info">
+                       <img src={property.image} alt={property.title} className="property-thumbnail" />
+                       <div>
+                         <h4>{property.title}</h4>
+                         <p className="property-description">{property.description.substring(0, 60)}...</p>
+                       </div>
+                     </div>
+                   </Link>
+                 </td>
+                 <td>
+                   <Link 
+                     href={`/properties/${property.slug}`} 
+                     target="_blank" 
+                     rel="noopener noreferrer"
+                     className="property-link"
+                   >
+                     {property.location}
+                   </Link>
+                 </td>
+                 <td>
+                   <Link 
+                     href={`/properties/${property.slug}`} 
+                     target="_blank" 
+                     rel="noopener noreferrer"
+                     className="property-link"
+                   >
+                     <span className="price">{property.price}{property.period}</span>
+                   </Link>
+                 </td>
+                 <td>
+                   <Link 
+                     href={`/properties/${property.slug}`} 
+                     target="_blank" 
+                     rel="noopener noreferrer"
+                     className="property-link"
+                   >
+                     <span className={`badge ${property.badgeClass}`}>
+                       {property.badge}
+                     </span>
+                   </Link>
+                 </td>
+                 <td>
+                   <div className="action-buttons">
+                     <Link
+                       href={`/admin/edit-property/${property.id}`}
+                       className="btn-icon edit"
+                       title="Edit Property"
+                     >
+                       <MdOutlineEdit />
+                     </Link>
+                     <button
+                       className="btn-icon delete"
+                       onClick={() => handleDeleteProperty(property.id, property.title)}
+                       title="Delete Property"
+                     >
+                       <IoTrashOutline />
+                     </button>
+                   </div>
+                 </td>
+               </tr>
+             ))}
           </tbody>
         </table>
       </div>
