@@ -432,7 +432,7 @@ button, a { transition: var(--transition); }
   #PROPERTIES - MOVED TO Properties.module.css
 \*-----------------------------------*/
 
-/* About and Hero button styles moved to respective .module.css files */
+
 
 .card-footer {
   padding: 15px;
@@ -569,7 +569,7 @@ button, a { transition: var(--transition); }
   #CONTACT
 \*-----------------------------------*/
 
-/* Contact styles moved to Contact.module.css */
+
 
 /*-----------------------------------*\
   #FOOTER
@@ -711,10 +711,6 @@ button, a { transition: var(--transition); }
    * PROPERTY
    */
 
-  /* Properties responsive styles moved to Properties.module.css */
-
-
-
   /**
    * CTA
    */
@@ -832,14 +828,6 @@ button, a { transition: var(--transition); }
    * FEATURES
    */
 
-  /* Features responsive styles moved to Features.module.css */
-
-
-
-
-
-
-
   /**
    * CTA
    */
@@ -924,8 +912,6 @@ button, a { transition: var(--transition); }
    * PROPERTY
    */
 
-  /* Properties responsive styles moved to Properties.module.css */
-
   .card-footer { padding: 20px 30px 30px; }
 
 
@@ -933,14 +919,6 @@ button, a { transition: var(--transition); }
   /**
    * FEATURES
    */
-
-  /* Features responsive styles moved to Features.module.css */
-
-
-
-
-
-
 
   /**
    * CTA
@@ -975,8 +953,6 @@ button, a { transition: var(--transition); }
   }
 
   .footer-link-box { flex-basis: 550px; }
-
-  /* Contact responsive styles moved to Contact.module.css */
 }
 
 
@@ -1076,10 +1052,6 @@ button, a { transition: var(--transition); }
    * FEATURES
    */
 
-  /* Features responsive styles moved to Features.module.css */
-
-
-
   /**
    * CTA
    */
@@ -1105,7 +1077,7 @@ button, a { transition: var(--transition); }
   #PROPERTY PAGES
 \*-----------------------------------*/
 
-/* Property Hero Section */
+
 .property-hero {
   padding-block: var(--section-padding);
   background: linear-gradient(135deg, var(--alice-blue) 0%, var(--seashell) 100%);
@@ -1185,7 +1157,7 @@ button, a { transition: var(--transition); }
   transform: scale(1.05);
 }
 
-/* Property Details Section */
+
 .property-details {
   padding-block: var(--section-padding);
 }
@@ -1296,7 +1268,7 @@ button, a { transition: var(--transition); }
   font-size: 18px;
 }
 
-/* Property Interior Details */
+
 .property-interior {
   margin-bottom: 40px;
 }
@@ -1325,7 +1297,7 @@ button, a { transition: var(--transition); }
   font-size: 18px;
 }
 
-/* Property Rental Details */
+
 .property-rental {
   background: var(--white);
   padding: 25px;
@@ -1370,7 +1342,7 @@ button, a { transition: var(--transition); }
   font-size: var(--fs-3);
 }
 
-/* Property Availability */
+
 .property-availability {
   margin-bottom: 40px;
 }
@@ -1408,7 +1380,7 @@ button, a { transition: var(--transition); }
   margin: 0;
 }
 
-/* Property Sidebar */
+
 .property-sidebar {
   order: 1;
 }
@@ -1545,7 +1517,7 @@ button, a { transition: var(--transition); }
   left: 0;
 }
 
-/* Property Gallery Section */
+
 .property-gallery {
   padding-block: var(--section-padding);
   background: var(--cultured-2);
@@ -1596,7 +1568,7 @@ button, a { transition: var(--transition); }
   font-size: var(--fs-5);
 }
 
-/* Similar Properties Section */
+
 .similar-properties {
   padding-block: var(--section-padding);
 }
@@ -1670,7 +1642,7 @@ button, a { transition: var(--transition); }
   transform: translateY(-2px);
 }
 
-/* View Details Button Styling */
+
 .property-card .btn,
 .similar-property-content .btn {
   background: linear-gradient(135deg, var(--orange-soda), #ff6b35);
@@ -1720,7 +1692,7 @@ button, a { transition: var(--transition); }
   box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
 }
 
-/* Responsive Design for Property Pages */
+
 @media (min-width: 768px) {
   .property-hero-content {
     grid-template-columns: 1fr 1fr;

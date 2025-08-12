@@ -154,7 +154,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
       <Header />
       
       <main>
-        {/* Property Hero Section */}
+
         <section className="property-hero">
           <div className="container">
             <div className="property-hero-content">
@@ -183,11 +183,9 @@ export default function PropertyPage({ params }: PropertyPageProps) {
           </div>
         </section>
 
-        {/* Property Details Section */}
         <section className="property-details">
           <div className="container">
             <div className="property-details-grid">
-              {/* Main Details */}
               <div className="property-main-details">
                 <h2 className="h2">Property Details</h2>
                 
@@ -221,7 +219,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
                 </div>
               </div>
 
-              {/* Sidebar */}
+
               <div className="property-sidebar">
                 <div className="contact-card">
                   <h3 className="h3">Contact Agent</h3>
@@ -259,7 +257,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
           </div>
         </section>
 
-        {/* Additional Images Section */}
+
         <section className="property-gallery">
           <div className="container">
             <h2 className="h2">Property Gallery</h2>
@@ -308,7 +306,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
           </div>
         </section>
 
-        {/* Similar Properties Section */}
+
         <section className="similar-properties">
           <div className="container">
             <h2 className="h2">Similar Properties</h2>

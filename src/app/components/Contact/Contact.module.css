@@ -8,15 +8,12 @@
 }
 
 .contactContainer {
-  /* Container styles */
 }
 
 .sectionSubtitle {
-  /* Inherit from global styles */
 }
 
 .sectionTitle {
-  /* Inherit from global styles */
 }
 
 .contactContent {
@@ -240,7 +237,6 @@
   font-size: 18px;
 }
 
-/* Responsive styles */
 @media (min-width: 992px) {
   .contactContent {
     grid-template-columns: 1fr 1fr;

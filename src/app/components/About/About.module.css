@@ -7,7 +7,6 @@
 }
 
 .aboutContainer {
-  /* Container styles */
 }
 
 .aboutBanner {
@@ -29,7 +28,6 @@
 }
 
 .aboutContent {
-  /* Content wrapper styles */
 }
 
 .sectionSubtitle { 
@@ -107,7 +105,6 @@
   text-align: center;
 }
 
-/* Responsive styles */
 @media (min-width: 768px) {
   .sectionTitle { 
     max-width: 30ch; 
@@ -140,7 +137,6 @@
   }
 }
 
-/* Button styles specific to about */
 .btn::before {
   content: '';
   position: absolute;

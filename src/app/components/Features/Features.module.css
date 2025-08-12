@@ -85,7 +85,6 @@
   color: var(--orange-soda); 
 }
 
-/* Responsive styles */
 @media (min-width: 768px) {
   .featuresList > li { 
     width: calc(33.33% - 13.33px); 

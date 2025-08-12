@@ -8,15 +8,12 @@
 }
 
 .serviceContainer {
-  /* Container styles */
 }
 
 .sectionSubtitle {
-  /* Inherit from global styles */
 }
 
 .sectionTitle {
-  /* Inherit from global styles */
 }
 
 .serviceList {
@@ -27,7 +24,6 @@
 }
 
 .serviceList > li {
-  /* Base list item styles */
 }
 
 .serviceCard {
@@ -94,7 +90,6 @@
   width: 100%; 
 }
 
-/* Responsive styles */
 @media (min-width: 600px) {
   .serviceList > li { 
     width: calc(50% - 15px); 
