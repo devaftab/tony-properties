@@ -17,5 +17,7 @@ export {
   IoCallOutline,
   IoMailOutline,
   IoLogoWhatsapp,
-  IoPaperPlaneOutline
+  IoPaperPlaneOutline,
+  IoChevronBackOutline,
+  IoChevronForwardOutline
 } from 'react-icons/io5'

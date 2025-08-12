@@ -231,12 +231,12 @@ button, a { transition: var(--transition); }
 
 .header {
   position: relative;
-  z-index: 2;
+  z-index: 10;
 }
 
 .header-top {
   background: var(--prussian-blue);
-  padding-block: 15px;
+  padding-block: 10px;
 }
 
 .header-top .container,
@@ -296,7 +296,7 @@ button, a { transition: var(--transition); }
 
 .header-bottom {
   background: var(--white);
-  padding-block: 20px;
+  padding-block: 15px;
 }
 
 .logo-text {
@@ -372,16 +372,30 @@ button, a { transition: var(--transition); }
   left: 0;
   width: 100%;
   display: flex;
-  justify-content: space-evenly;
+  justify-content: center;
+  align-items: center;
   padding-block: 15px 10px;
   box-shadow: -2px 0 30px hsla(237, 71%, 52%, 0.2);
   z-index: 3;
 }
 
+.header-bottom-actions-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background: var(--white);
+  border: none;
+  padding: 10px;
+  border-radius: 8px;
+  transition: var(--transition);
+  cursor: pointer;
+}
+
 .header-bottom-actions-btn ion-icon {
   color: hsl(0, 0%, 10%);
   font-size: 20px;
-  margin-inline: auto;
   margin-bottom: 5px;
   --ionicon-stroke-width: 40px;
   transition: var(--transition);
@@ -394,45 +408,8 @@ button, a { transition: var(--transition); }
   font-family: var(--ff-poppins);
   font-size: var(--fs-7);
   font-weight: var(--fw-500);
+  line-height: 1;
 }
-
-
-
-
-
-/*-----------------------------------*\
-  #HERO - MOVED TO Hero.module.css
-\*-----------------------------------*/
-
-
-
-
-
-/*-----------------------------------*\
-  #ABOUT - MOVED TO About.module.css
-\*-----------------------------------*/
-
-
-
-
-
-/*-----------------------------------*\
-  #SERVICE - MOVED TO Services.module.css
-\*-----------------------------------*/
-
-
-
-
-
-/*-----------------------------------*\
-  #PROPERTY
-\*-----------------------------------*/
-
-/*-----------------------------------*\
-  #PROPERTIES - MOVED TO Properties.module.css
-\*-----------------------------------*/
-
-
 
 .card-footer {
   padding: 15px;
@@ -493,23 +470,6 @@ button, a { transition: var(--transition); }
 }
 
 
-
-
-
-/*-----------------------------------*\
-  #FEATURES - MOVED TO Features.module.css
-\*-----------------------------------*/
-
-
-
-
-
-
-
-
-
-
-
 /*-----------------------------------*\
   #CTA
 \*-----------------------------------*/
@@ -560,15 +520,6 @@ button, a { transition: var(--transition); }
 }
 
 .cta-btn::before { background: var(--black); }
-
-
-
-
-
-/*-----------------------------------*\
-  #CONTACT
-\*-----------------------------------*/
-
 
 
 /*-----------------------------------*\
@@ -697,20 +648,6 @@ button, a { transition: var(--transition); }
     margin-inline: auto;
   }
 
-
-
-
-
-  /**
-   * SERVICE - MOVED TO Services.module.css
-   */
-
-
-
-  /**
-   * PROPERTY
-   */
-
   /**
    * CTA
    */
@@ -730,9 +667,6 @@ button, a { transition: var(--transition); }
   }
 
 }
-
-
-
 
 
 /**
@@ -808,25 +742,12 @@ button, a { transition: var(--transition); }
     width: 50px;
     height: 50px;
     box-shadow: var(--shadow-2);
+    padding: 0;
+    border-radius: 50%;
+    min-width: 50px;
+    min-height: 50px;
   }
-
-
-
-  /**
-   * HERO - MOVED TO Hero.module.css
-   */
-
-
-
-  /**
-   * ABOUT - MOVED TO About.module.css
-   */
-
-
-
-  /**
-   * FEATURES
-   */
+}
 
   /**
    * CTA
@@ -841,11 +762,6 @@ button, a { transition: var(--transition); }
    */
 
   .footer { margin-bottom: 0; }
-
-}
-
-
-
 
 
 /**
@@ -880,33 +796,12 @@ button, a { transition: var(--transition); }
   .btn { padding: 15px 40px; }
 
 
-
   /**
    * HEADER
    */
 
   .header-top-list,
   .header-top .wrapper { gap: 30px; }
-
-
-
-  /**
-   * HERO - MOVED TO Hero.module.css
-   */
-
-
-
-  /**
-   * ABOUT - MOVED TO About.module.css
-   */
-
-
-
-  /**
-   * SERVICE - MOVED TO Services.module.css
-   */
-
-
 
   /**
    * PROPERTY
@@ -935,7 +830,6 @@ button, a { transition: var(--transition); }
   }
 
   .cta-card :is(.card-content, .cta-btn) { margin: 0; }
-
 
 
   /**
@@ -980,8 +874,6 @@ button, a { transition: var(--transition); }
 
   }
 
-
-
   /**
    * REUSED STYLE
    */
@@ -989,14 +881,11 @@ button, a { transition: var(--transition); }
   .container { max-width: 1200px; }
 
 
-
-
-
   /**
    * HEADER
    */
 
-  .header-bottom { padding-block: 30px; }
+  .header-bottom { padding-block: 25px; }
 
   .header-bottom-actions-btn:last-child,
   .navbar-top,
@@ -1039,18 +928,6 @@ button, a { transition: var(--transition); }
     0% { transform: translateY(0); }
     100% { transform: translateY(100%); }
   }
-
-
-
-  /**
-   * HERO - MOVED TO Hero.module.css
-   */
-
-
-
-  /**
-   * FEATURES
-   */
 
   /**
    * CTA
@@ -1773,5 +1650,23 @@ button, a { transition: var(--transition); }
 @media (min-width: 1200px) {
   .gallery-grid {
     grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+/* Extra small devices */
+@media (max-width: 480px) {
+  .header-bottom-actions-btn {
+    width: 60px;
+    height: 60px;
+    min-width: 60px;
+    min-height: 60px;
+  }
+  
+  .header-bottom-actions-btn ion-icon {
+    font-size: 22px;
+  }
+  
+  .header-bottom-actions-btn span {
+    font-size: 0.75rem;
   }
 }
