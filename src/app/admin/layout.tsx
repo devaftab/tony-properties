@@ -1,6 +1,7 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { IoHomeOutline, IoAddOutline, IoListOutline, IoStatsChartOutline, IoSettingsOutline, IoLogOutOutline, IoMenuOutline, IoCloseOutline } from 'react-icons/io5'
 import './admin.css'
 
@@ -10,6 +11,72 @@ export default function AdminLayout({
   children: React.ReactNode
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
+  const router = useRouter()
+
+  useEffect(() => {
+    // Check if we're on the login page
+    const isLoginPage = window.location.pathname === '/admin/login'
+    
+    if (isLoginPage) {
+      // If on login page, don't check authentication
+      setIsAuthenticated(false)
+      setIsLoading(false)
+      return
+    }
+    
+    // Check if user is authenticated
+    const adminToken = localStorage.getItem('adminToken')
+    const adminUser = localStorage.getItem('adminUser')
+    
+    if (adminToken && adminUser) {
+      setIsAuthenticated(true)
+    } else {
+      // Redirect to login if not authenticated
+      router.push('/admin/login')
+    }
+    setIsLoading(false)
+  }, [router])
+
+  // Check if we're on the login page
+  const isLoginPage = typeof window !== 'undefined' && window.location.pathname === '/admin/login'
+  
+  // If on login page, render children without admin layout
+  if (isLoginPage) {
+    return <>{children}</>
+  }
+
+  // Show loading while checking authentication
+  if (isLoading) {
+    return (
+      <div className="admin-loading">
+        <div className="loading-spinner"></div>
+        <p>Checking authentication...</p>
+      </div>
+    )
+  }
+
+  // Redirect if not authenticated
+  if (!isAuthenticated) {
+    return null
+  }
+
+  const handleLogout = () => {
+    // Show confirmation dialog
+    if (confirm('Are you sure you want to logout?')) {
+      // Clear any stored authentication data
+      localStorage.removeItem('adminToken')
+      localStorage.removeItem('adminUser')
+      sessionStorage.clear()
+      
+      // Show logout message
+      alert('You have been logged out successfully!')
+      
+      // Redirect to home page
+      router.push('/')
+    }
+  }
 
   const menuItems = [
     { icon: IoHomeOutline, label: 'Dashboard', href: '/admin' },
@@ -53,7 +120,7 @@ export default function AdminLayout({
         </nav>
 
         <div className="sidebar-footer">
-          <button className="logout-btn">
+          <button className="logout-btn" onClick={handleLogout}>
             <IoLogOutOutline />
             <span>Logout</span>
           </button>

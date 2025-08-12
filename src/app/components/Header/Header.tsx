@@ -93,6 +93,9 @@ export default function Header() {
                 <li>
                   <Link href="/contact" className="navbar-link" onClick={closeNavbar}>Contact</Link>
                 </li>
+                <li>
+                  <Link href="/admin/login" className="navbar-link admin-link" onClick={closeNavbar}>Admin</Link>
+                </li>
               </ul>
             </div>
           </nav>

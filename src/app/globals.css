@@ -350,6 +350,27 @@ button, a { transition: var(--transition); }
 
 .navbar-link:is(:hover, :focus) { color: var(--orange-soda); }
 
+.admin-link {
+  background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+  color: white !important;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  border: 2px solid #1e293b;
+  transition: all 0.3s ease;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.875rem;
+}
+
+.admin-link:hover {
+  background: linear-gradient(135deg, #334155 0%, #475569 100%);
+  border-color: #475569;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(30, 41, 59, 0.3);
+  color: white !important;
+}
+
 .overlay {
   position: fixed;
   inset: 0;

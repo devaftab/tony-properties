@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { IoLocationOutline } from 'react-icons/io5'
+
 import { allProperties } from '../../data/properties'
 
 export default function AdminAnalytics() {
@@ -98,30 +98,7 @@ export default function AdminAnalytics() {
         </div>
       </div>
 
-      {/* Recent Activity */}
-      <div className="activity-section">
-        <h3>Recent Activity</h3>
-        <div className="activity-list">
-          {allProperties.slice(0, 5).map((property) => (
-            <div key={property.id} className="activity-item">
-              <div className="activity-icon">
-                <IoLocationOutline />
-              </div>
-              <div className="activity-content">
-                <p>
-                  <strong>{property.title}</strong> was added to the portfolio
-                </p>
-                <span className="activity-time">2 hours ago</span>
-              </div>
-              <div className="activity-status">
-                <span className={`status-badge ${property.badgeClass}`}>
-                  {property.badge}
-                </span>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+
     </div>
   )
 }
