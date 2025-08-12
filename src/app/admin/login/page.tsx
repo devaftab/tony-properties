@@ -1,7 +1,8 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { IoLockClosedOutline, IoPersonOutline, IoEyeOutline, IoEyeOffOutline } from 'react-icons/io5'
+import Link from 'next/link'
+import { IoLockClosedOutline, IoPersonOutline, IoEyeOutline, IoEyeOffOutline, IoHomeOutline } from 'react-icons/io5'
 import { useAuth } from '../context/AuthContext'
 import '../admin.css'
 
@@ -62,8 +63,12 @@ export default function AdminLogin() {
       <div className="login-container">
         <div className="login-header">
           <div className="logo">
-            <h1>Tony Properties</h1>
-            <p>Admin Panel</p>
+            <Link href="/" className="logo-link">
+              <div className="logo-icon">
+                <IoHomeOutline />
+              </div>
+              <h1>Tony Properties</h1>
+            </Link>
           </div>
         </div>
 
