@@ -2,17 +2,25 @@
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { IoLockClosedOutline, IoPersonOutline, IoEyeOutline, IoEyeOffOutline } from 'react-icons/io5'
+import { useAuth } from '../context/AuthContext'
 import '../admin.css'
 
 export default function AdminLogin() {
   const [credentials, setCredentials] = useState({
-    id: '',
+    id: 'admin',
     password: ''
   })
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
+  const { login, isAuthenticated } = useAuth()
+
+  // Redirect if already authenticated
+  if (isAuthenticated) {
+    router.push('/admin')
+    return null
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -34,9 +42,8 @@ export default function AdminLogin() {
 
     // Check credentials
     if (credentials.id === 'admin' && credentials.password === 'Faith') {
-      // Store admin session
-      localStorage.setItem('adminToken', 'admin-session-token')
-      localStorage.setItem('adminUser', credentials.id)
+      // Use the auth context to login
+      login('admin-session-token', credentials.id)
       
       // Redirect to admin dashboard
       router.push('/admin')

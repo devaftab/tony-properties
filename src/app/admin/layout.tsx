@@ -1,46 +1,31 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { useRouter } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { IoHomeOutline, IoAddOutline, IoListOutline, IoStatsChartOutline, IoSettingsOutline, IoLogOutOutline, IoMenuOutline, IoCloseOutline } from 'react-icons/io5'
+import { useAuth } from './context/AuthContext'
+import AdminRootLayout from './AdminRootLayout'
 import './admin.css'
 
-export default function AdminLayout({
+function AdminLayoutContent({
   children,
 }: {
   children: React.ReactNode
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
+  const { isAuthenticated, isLoading, logout } = useAuth()
+  const pathname = usePathname()
   const router = useRouter()
 
+  // Check if we're on the login page
+  const isLoginPage = pathname === '/admin/login'
+  
+  // Handle authentication redirect
   useEffect(() => {
-    // Check if we're on the login page
-    const isLoginPage = window.location.pathname === '/admin/login'
-    
-    if (isLoginPage) {
-      // If on login page, don't check authentication
-      setIsAuthenticated(false)
-      setIsLoading(false)
-      return
-    }
-    
-    // Check if user is authenticated
-    const adminToken = localStorage.getItem('adminToken')
-    const adminUser = localStorage.getItem('adminUser')
-    
-    if (adminToken && adminUser) {
-      setIsAuthenticated(true)
-    } else {
-      // Redirect to login if not authenticated
+    if (!isLoading && !isAuthenticated && !isLoginPage) {
       router.push('/admin/login')
     }
-    setIsLoading(false)
-  }, [router])
-
-  // Check if we're on the login page
-  const isLoginPage = typeof window !== 'undefined' && window.location.pathname === '/admin/login'
+  }, [isLoading, isAuthenticated, isLoginPage, router])
   
   // If on login page, render children without admin layout
   if (isLoginPage) {
@@ -57,7 +42,7 @@ export default function AdminLayout({
     )
   }
 
-  // Redirect if not authenticated
+  // Don't render admin layout if not authenticated (will redirect)
   if (!isAuthenticated) {
     return null
   }
@@ -65,16 +50,7 @@ export default function AdminLayout({
   const handleLogout = () => {
     // Show confirmation dialog
     if (confirm('Are you sure you want to logout?')) {
-      // Clear any stored authentication data
-      localStorage.removeItem('adminToken')
-      localStorage.removeItem('adminUser')
-      sessionStorage.clear()
-      
-      // Show logout message
-      alert('You have been logged out successfully!')
-      
-      // Redirect to home page
-      router.push('/')
+      logout()
     }
   }
 
@@ -88,13 +64,16 @@ export default function AdminLayout({
 
   return (
     <div className="admin-layout">
-      {/* Mobile Sidebar Toggle */}
-      <button 
-        className="mobile-sidebar-toggle"
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-      >
-        {sidebarOpen ? <IoCloseOutline /> : <IoMenuOutline />}
-      </button>
+      {/* Mobile Bottom Bar */}
+      <div className="mobile-bottom-bar">
+        <button 
+          className="mobile-sidebar-toggle"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+        >
+          {sidebarOpen ? <IoCloseOutline /> : <IoMenuOutline />}
+          <span>Menu</span>
+        </button>
+      </div>
 
       {/* Sidebar */}
       <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
@@ -143,5 +122,19 @@ export default function AdminLayout({
         </div>
       </main>
     </div>
+  )
+}
+
+export default function AdminLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
+  return (
+    <AdminRootLayout>
+      <AdminLayoutContent>
+        {children}
+      </AdminLayoutContent>
+    </AdminRootLayout>
   )
 }

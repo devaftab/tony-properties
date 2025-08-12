@@ -28,6 +28,12 @@
   transform: translateX(0);
 }
 
+@media (max-width: 1024px) {
+  .admin-sidebar.open {
+    transform: translateX(0);
+  }
+}
+
 .sidebar-header {
   padding: 2rem 1.5rem;
   border-bottom: 1px solid #334155;
@@ -38,6 +44,7 @@
   font-weight: 700;
   color: #fbbf24;
   margin: 0;
+  text-align: center;
 }
 
 .sidebar-nav {
@@ -58,6 +65,7 @@
 .nav-link {
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 0.75rem;
   padding: 0.75rem 1.5rem;
   color: #cbd5e1;
@@ -94,6 +102,7 @@
 .logout-btn {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 0.75rem;
   width: 100%;
   padding: 0.75rem;
@@ -174,20 +183,46 @@
   padding: 2rem;
 }
 
-/* Mobile Sidebar Toggle */
-.mobile-sidebar-toggle {
+/* Mobile Bottom Bar */
+.mobile-bottom-bar {
   display: none;
   position: fixed;
-  top: 1rem;
-  left: 1rem;
-  z-index: 1001;
+  bottom: 0;
+  left: 0;
+  right: 0;
   background: #1e293b;
+  border-top: 2px solid #334155;
+  padding: 1rem 2rem;
+  z-index: 1001;
+  box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Mobile Sidebar Toggle */
+.mobile-sidebar-toggle {
+  background: transparent;
   color: white;
   border: none;
-  padding: 0.75rem;
+  padding: 0.5rem 1rem;
   border-radius: 0.5rem;
   cursor: pointer;
   font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+  width: 100%;
+  justify-content: center;
+}
+
+.mobile-sidebar-toggle:hover {
+  background: #334155;
+  transform: none;
+}
+
+.mobile-sidebar-toggle span {
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1;
 }
 
 /* Dashboard Page */
@@ -1663,17 +1698,32 @@
 /* Responsive Design */
 @media (max-width: 1024px) {
   .admin-sidebar {
-    transform: translateX(-100%);
+    transform: translateY(100%);
+    bottom: 0;
+    top: auto;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: auto;
+    max-height: 80vh;
+    border-radius: 0;
+  }
+  
+  .admin-sidebar.open {
+    transform: translateY(0);
   }
   
   .admin-main {
     margin-left: 0;
+    margin-bottom: 80px;
   }
   
-  .mobile-sidebar-toggle {
+  .mobile-bottom-bar {
     display: block;
   }
-  
+  .logout-btn{
+    margin-bottom: 3.5rem;
+  }
   .form-grid {
     grid-template-columns: 1fr;
   }
@@ -1731,5 +1781,11 @@
   .property-thumbnail {
     width: 100%;
     height: 120px;
+  }
+}
+
+@media (max-width: 570px) {
+  .logout-btn{
+    margin-bottom: 3.5rem;
   }
 }
