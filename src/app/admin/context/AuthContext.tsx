@@ -1,6 +1,5 @@
 'use client'
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
-import { useRouter } from 'next/navigation'
 
 interface AuthContextType {
   isAuthenticated: boolean
@@ -27,7 +26,6 @@ interface AuthProviderProps {
 export function AuthProvider({ children }: AuthProviderProps) {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const router = useRouter()
 
   const checkAuth = () => {
     const adminToken = localStorage.getItem('adminToken')

@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react'
-import { IoSaveOutline, IoNotificationsOutline, IoShieldOutline, IoColorPaletteOutline, IoLanguageOutline, IoCheckmarkCircleOutline } from 'react-icons/io5'
+import { IoSaveOutline, IoNotificationsOutline, IoShieldOutline, IoColorPaletteOutline, IoCheckmarkCircleOutline } from 'react-icons/io5'
 
 export default function AdminSettings() {
   const [settings, setSettings] = useState({
@@ -24,7 +24,7 @@ export default function AdminSettings() {
   const [isSaving, setIsSaving] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
 
-  const handleSettingChange = (category: string, key: string, value: any) => {
+  const handleSettingChange = (category: string, key: string, value: boolean | string | number) => {
     setSettings(prev => ({
       ...prev,
       [category]: {

@@ -19,7 +19,7 @@ export default function Hero() {
           <p className={styles.heroText}>
             {`Tony Properties – Best Property Dealer in Janak Puri, New Delhi
             Looking to buy, sell, or rent property in Janak Puri? At Tony Properties, led by Gurmeet Singh (Tony), we
-            offer expert property consultancy, finance advice, building, and collaboration services. Whether it's
+            offer expert property consultancy, finance advice, building, and collaboration services. Whether it&apos;s
             residential flats, commercial shops, builder floors, or rental spaces, we ensure, you get the best deals in
             New Delhi real estate.`}
           </p>

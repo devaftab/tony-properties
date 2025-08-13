@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
+import Image from 'next/image'
 import { IoCloudUploadOutline, IoCheckmarkCircleOutline, IoArrowBackOutline } from 'react-icons/io5'
 import { allProperties } from '../../../data/properties'
 
@@ -286,7 +287,12 @@ export default function EditProperty() {
               />
               {imagePreview ? (
                 <div className="image-preview">
-                  <img src={imagePreview} alt="Property preview" />
+                  <Image 
+                    src={imagePreview} 
+                    alt="Property preview" 
+                    width={200}
+                    height={150}
+                  />
                 </div>
               ) : (
                 <div className="upload-placeholder">

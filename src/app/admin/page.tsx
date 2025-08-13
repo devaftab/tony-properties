@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { IoAddOutline, IoListOutline, IoStatsChartOutline, IoLocationOutline, IoHomeOutline } from 'react-icons/io5'
 import { allProperties } from '../data/properties'
 
@@ -56,7 +57,7 @@ export default function AdminDashboard() {
       {/* Welcome Section */}
       <div className="welcome-section">
         <h2>Welcome back, Sir! 👋</h2>
-        <p>{`Here's what's happening with your properties today.`}</p>
+        <p>{`Here&apos;s what&apos;s happening with your properties today.`}</p>
       </div>
 
       {/* Stats Cards */}
@@ -125,7 +126,12 @@ export default function AdminDashboard() {
           {allProperties.slice(0, 6).map((property) => (
             <div key={property.id} className="recent-property-card">
               <div className="property-image">
-                <img src={property.image} alt={property.title} />
+                <Image 
+                  src={property.image} 
+                  alt={property.title} 
+                  width={200}
+                  height={150}
+                />
                 <div className={`property-badge ${property.badgeClass}`}>
                   {property.badge}
                 </div>

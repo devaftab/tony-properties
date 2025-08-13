@@ -27,7 +27,7 @@ export default function Services() {
               </h3>
 
               <p className={styles.cardText}>
-                {`Whether you're looking to purchase your dream home or sell your current property for the best price, Tony Properties is here to guide you. From market analysis to final paperwork, we make every transaction smooth and profitable.`}
+                {`Whether you&apos;re looking to purchase your dream home or sell your current property for the best price, Tony Properties is here to guide you. From market analysis to final paperwork, we make every transaction smooth and profitable.`}
               </p>
 
               <Link href="#contact" className={styles.cardLink}>

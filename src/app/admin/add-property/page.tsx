@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 import { IoCloudUploadOutline, IoCheckmarkCircleOutline } from 'react-icons/io5'
 
 export default function AddProperty() {
@@ -297,7 +298,12 @@ export default function AddProperty() {
               </div>
               {formData.image && (
                 <div className="image-preview">
-                  <img src={formData.image} alt="Preview" />
+                  <Image 
+                    src={formData.image} 
+                    alt="Preview" 
+                    width={200}
+                    height={150}
+                  />
                 </div>
               )}
             </div>

@@ -6,13 +6,13 @@ import { IoLocationOutline, IoBedOutline, IoCheckmarkCircleOutline } from 'react
 import { allProperties } from '../../data/properties'
 
 interface PropertyPageProps {
-  params: {
+  params: Promise<{
     slug: string
-  }
+  }>
 }
 
-export default function PropertyPage({ params }: PropertyPageProps) {
-  const { slug } = params
+export default async function PropertyPage({ params }: PropertyPageProps) {
+  const { slug } = await params
 
   // Find property by slug from the data
   const property = allProperties.find(p => p.slug === slug)
@@ -23,7 +23,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
         <Header />
         <div style={{ padding: '100px 20px', textAlign: 'center' }}>
           <h1>Property Not Found</h1>
-          <p>{`The property you're looking for doesn't exist.`}</p>
+          <p>{`The property you&apos;re looking for doesn&apos;t exist.`}</p>
           <Link href="/properties" style={{ color: '#3b82f6', textDecoration: 'underline' }}>
             Back to Properties
           </Link>
@@ -228,7 +228,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
           <div className="container">
             <h2 className="h2">Similar Properties</h2>
             <div className="similar-properties-grid">
-              {['3bhk', 'apartments', 'floor', 'apartment'].filter(s => s !== slug).map((similarSlug, index) => {
+              {['3bhk', 'apartments', 'floor', 'apartment'].filter(s => s !== slug).map((similarSlug) => {
                 const similarProperty = allProperties.find(p => p.slug === similarSlug)
                 if (!similarProperty) return null
                 

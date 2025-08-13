@@ -1,6 +1,7 @@
 'use client'
 import { useState, useMemo } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { IoAddOutline, IoSearchOutline, IoTrashOutline } from 'react-icons/io5'
 import {MdOutlineEdit} from 'react-icons/md'
 import { allProperties, Property } from '../../data/properties'
@@ -34,12 +35,12 @@ export default function AdminProperties() {
 
     // Apply sorting
     filtered.sort((a, b) => {
-      let aValue: any = a[sortBy as keyof Property]
-      let bValue: any = b[sortBy as keyof Property]
+      let aValue: string | number = a[sortBy as keyof Property] as string | number
+      let bValue: string | number = b[sortBy as keyof Property] as string | number
 
       if (sortBy === 'price') {
-        aValue = parseInt(aValue.replace(/[^\d]/g, ''))
-        bValue = parseInt(bValue.replace(/[^\d]/g, ''))
+        aValue = parseInt(String(aValue).replace(/[^\d]/g, ''))
+        bValue = parseInt(String(bValue).replace(/[^\d]/g, ''))
       }
 
       if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1
@@ -210,7 +211,13 @@ export default function AdminProperties() {
                      className="property-link"
                    >
                      <div className="property-info">
-                       <img src={property.image} alt={property.title} className="property-thumbnail" />
+                       <Image 
+                         src={property.image} 
+                         alt={property.title} 
+                         className="property-thumbnail"
+                         width={60}
+                         height={60}
+                       />
                        <div>
                          <h4>{property.title}</h4>
                          <p className="property-description">{property.description.substring(0, 60)}...</p>
