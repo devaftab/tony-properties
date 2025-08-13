@@ -56,7 +56,7 @@ export default function AdminDashboard() {
       {/* Welcome Section */}
       <div className="welcome-section">
         <h2>Welcome back, Sir! 👋</h2>
-        <p>Here's what's happening with your properties today.</p>
+        <p>{`Here's what's happening with your properties today.`}</p>
       </div>
 
       {/* Stats Cards */}

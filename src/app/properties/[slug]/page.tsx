@@ -23,7 +23,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
         <Header />
         <div style={{ padding: '100px 20px', textAlign: 'center' }}>
           <h1>Property Not Found</h1>
-          <p>The property you're looking for doesn't exist.</p>
+          <p>{`The property you're looking for doesn't exist.`}</p>
           <Link href="/properties" style={{ color: '#3b82f6', textDecoration: 'underline' }}>
             Back to Properties
           </Link>
@@ -229,8 +229,14 @@ export default function PropertyPage({ params }: PropertyPageProps) {
             <h2 className="h2">Similar Properties</h2>
             <div className="similar-properties-grid">
               {['3bhk', 'apartments', 'floor', 'apartment'].filter(s => s !== slug).map((similarSlug, index) => {
-                const similarData = getPropertyData(similarSlug)
-                if (!similarData) return null
+                const similarProperty = allProperties.find(p => p.slug === similarSlug)
+                if (!similarProperty) return null
+                
+                const similarData = {
+                  title: similarProperty.title,
+                  price: similarProperty.price,
+                  period: similarProperty.period
+                }
                 
                 return (
                   <div key={similarSlug} className="similar-property-card">

@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Nunito_Sans, Poppins } from 'next/font/google'
 import './globals.css'
+import Script from 'next/script';
 
 const nunitoSans = Nunito_Sans({ 
   subsets: ['latin'],
@@ -39,14 +40,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <script 
+        <Script 
           type="module" 
           src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"
-        ></script>
-        <script 
+        />
+        <Script 
           noModule 
           src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"
-        ></script>
+        />
       </head>
       <body className={`${nunitoSans.variable} ${poppins.variable}`}>
         {children}
