@@ -39,20 +39,22 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head>
+      <body className={`${nunitoSans.variable} ${poppins.variable}`}>
+        {children}
+        
+        {/* Ionicons Scripts - Loaded after page content */}
         <Script 
           type="module" 
           src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"
           strategy="afterInteractive"
+          crossOrigin="anonymous"
         />
         <Script 
           noModule 
           src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"
           strategy="afterInteractive"
+          crossOrigin="anonymous"
         />
-      </head>
-      <body className={`${nunitoSans.variable} ${poppins.variable}`}>
-        {children}
       </body>
     </html>
   )

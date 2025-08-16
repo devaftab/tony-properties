@@ -1,0 +1,178 @@
+{
+  "uploadedAt": "2025-08-16T07:56:09.683Z",
+  "totalImages": 17,
+  "successfulUploads": 17,
+  "failedUploads": 0,
+  "images": [
+    {
+      "fileName": "about-banner-1.png",
+      "originalPath": "C:\\Users\\HP\\Desktop\\Projects\\Tony properties dev\\tony-properties\\public\\images\\about-banner-1.png",
+      "cloudinaryUrl": "https://res.cloudinary.com/tony-properties/image/upload/v1755330897/tony-properties/about-banner-1.png",
+      "publicId": "tony-properties/about-banner-1",
+      "width": 574,
+      "height": 722,
+      "format": "png",
+      "size": 151089
+    },
+    {
+      "fileName": "about-banner-2.jpg",
+      "originalPath": "C:\\Users\\HP\\Desktop\\Projects\\Tony properties dev\\tony-properties\\public\\images\\about-banner-2.jpg",
+      "cloudinaryUrl": "https://res.cloudinary.com/tony-properties/image/upload/v1755330899/tony-properties/about-banner-2.jpg",
+      "publicId": "tony-properties/about-banner-2",
+      "width": 800,
+      "height": 570,
+      "format": "jpg",
+      "size": 69453
+    },
+    {
+      "fileName": "blog-1.png",
+      "originalPath": "C:\\Users\\HP\\Desktop\\Projects\\Tony properties dev\\tony-properties\\public\\images\\blog-1.png",
+      "cloudinaryUrl": "https://res.cloudinary.com/tony-properties/image/upload/v1755330900/tony-properties/blog-1.png",
+      "publicId": "tony-properties/blog-1",
+      "width": 854,
+      "height": 614,
+      "format": "png",
+      "size": 271909
+    },
+    {
+      "fileName": "blog-2.jpg",
+      "originalPath": "C:\\Users\\HP\\Desktop\\Projects\\Tony properties dev\\tony-properties\\public\\images\\blog-2.jpg",
+      "cloudinaryUrl": "https://res.cloudinary.com/tony-properties/image/upload/v1755330902/tony-properties/blog-2.jpg",
+      "publicId": "tony-properties/blog-2",
+      "width": 800,
+      "height": 562,
+      "format": "jpg",
+      "size": 73596
+    },
+    {
+      "fileName": "blog-3.jpg",
+      "originalPath": "C:\\Users\\HP\\Desktop\\Projects\\Tony properties dev\\tony-properties\\public\\images\\blog-3.jpg",
+      "cloudinaryUrl": "https://res.cloudinary.com/tony-properties/image/upload/v1755330904/tony-properties/blog-3.jpg",
+      "publicId": "tony-properties/blog-3",
+      "width": 800,
+      "height": 570,
+      "format": "jpg",
+      "size": 74446
+    },
+    {
+      "fileName": "hero-banner-1.jpg",
+      "originalPath": "C:\\Users\\HP\\Desktop\\Projects\\Tony properties dev\\tony-properties\\public\\images\\hero-banner-1.jpg",
+      "cloudinaryUrl": "https://res.cloudinary.com/tony-properties/image/upload/v1755330909/tony-properties/hero-banner-1.jpg",
+      "publicId": "tony-properties/hero-banner-1",
+      "width": 3000,
+      "height": 2000,
+      "format": "jpg",
+      "size": 3848197
+    },
+    {
+      "fileName": "hero-banner-2.png",
+      "originalPath": "C:\\Users\\HP\\Desktop\\Projects\\Tony properties dev\\tony-properties\\public\\images\\hero-banner-2.png",
+      "cloudinaryUrl": "https://res.cloudinary.com/tony-properties/image/upload/v1755330911/tony-properties/hero-banner-2.png",
+      "publicId": "tony-properties/hero-banner-2",
+      "width": 717,
+      "height": 541,
+      "format": "png",
+      "size": 49192
+    },
+    {
+      "fileName": "kitchen-1940174_1280.jpg",
+      "originalPath": "C:\\Users\\HP\\Desktop\\Projects\\Tony properties dev\\tony-properties\\public\\images\\kitchen-1940174_1280.jpg",
+      "cloudinaryUrl": "https://res.cloudinary.com/tony-properties/image/upload/v1755330912/tony-properties/kitchen-1940174_1280.jpg",
+      "publicId": "tony-properties/kitchen-1940174_1280",
+      "width": 1280,
+      "height": 853,
+      "format": "jpg",
+      "size": 260878
+    },
+    {
+      "fileName": "kitchen-7850352_1280.jpg",
+      "originalPath": "C:\\Users\\HP\\Desktop\\Projects\\Tony properties dev\\tony-properties\\public\\images\\kitchen-7850352_1280.jpg",
+      "cloudinaryUrl": "https://res.cloudinary.com/tony-properties/image/upload/v1755330914/tony-properties/kitchen-7850352_1280.jpg",
+      "publicId": "tony-properties/kitchen-7850352_1280",
+      "width": 1024,
+      "height": 1280,
+      "format": "jpg",
+      "size": 179875
+    },
+    {
+      "fileName": "property-1.jpg",
+      "originalPath": "C:\\Users\\HP\\Desktop\\Projects\\Tony properties dev\\tony-properties\\public\\images\\property-1.jpg",
+      "cloudinaryUrl": "https://res.cloudinary.com/tony-properties/image/upload/v1755330917/tony-properties/property-1.jpg",
+      "publicId": "tony-properties/property-1",
+      "width": 3328,
+      "height": 4992,
+      "format": "jpg",
+      "size": 4545807
+    },
+    {
+      "fileName": "property-2.jpg",
+      "originalPath": "C:\\Users\\HP\\Desktop\\Projects\\Tony properties dev\\tony-properties\\public\\images\\property-2.jpg",
+      "cloudinaryUrl": "https://res.cloudinary.com/tony-properties/image/upload/v1755330919/tony-properties/property-2.jpg",
+      "publicId": "tony-properties/property-2",
+      "width": 850,
+      "height": 650,
+      "format": "jpg",
+      "size": 68286
+    },
+    {
+      "fileName": "property-3.jpg",
+      "originalPath": "C:\\Users\\HP\\Desktop\\Projects\\Tony properties dev\\tony-properties\\public\\images\\property-3.jpg",
+      "cloudinaryUrl": "https://res.cloudinary.com/tony-properties/image/upload/v1755330921/tony-properties/property-3.jpg",
+      "publicId": "tony-properties/property-3",
+      "width": 850,
+      "height": 650,
+      "format": "jpg",
+      "size": 88201
+    },
+    {
+      "fileName": "property-4.png",
+      "originalPath": "C:\\Users\\HP\\Desktop\\Projects\\Tony properties dev\\tony-properties\\public\\images\\property-4.png",
+      "cloudinaryUrl": "https://res.cloudinary.com/tony-properties/image/upload/v1755330923/tony-properties/property-4.png",
+      "publicId": "tony-properties/property-4",
+      "width": 854,
+      "height": 614,
+      "format": "png",
+      "size": 146591
+    },
+    {
+      "fileName": "property-5.jpg",
+      "originalPath": "C:\\Users\\HP\\Desktop\\Projects\\Tony properties dev\\tony-properties\\public\\images\\property-5.jpg",
+      "cloudinaryUrl": "https://res.cloudinary.com/tony-properties/image/upload/v1755330924/tony-properties/property-5.jpg",
+      "publicId": "tony-properties/property-5",
+      "width": 850,
+      "height": 650,
+      "format": "jpg",
+      "size": 98310
+    },
+    {
+      "fileName": "service-1.png",
+      "originalPath": "C:\\Users\\HP\\Desktop\\Projects\\Tony properties dev\\tony-properties\\public\\images\\service-1.png",
+      "cloudinaryUrl": "https://res.cloudinary.com/tony-properties/image/upload/v1755330926/tony-properties/service-1.png",
+      "publicId": "tony-properties/service-1",
+      "width": 185,
+      "height": 140,
+      "format": "png",
+      "size": 2238
+    },
+    {
+      "fileName": "service-2.png",
+      "originalPath": "C:\\Users\\HP\\Desktop\\Projects\\Tony properties dev\\tony-properties\\public\\images\\service-2.png",
+      "cloudinaryUrl": "https://res.cloudinary.com/tony-properties/image/upload/v1755330928/tony-properties/service-2.png",
+      "publicId": "tony-properties/service-2",
+      "width": 185,
+      "height": 140,
+      "format": "png",
+      "size": 2205
+    },
+    {
+      "fileName": "service-3.png",
+      "originalPath": "C:\\Users\\HP\\Desktop\\Projects\\Tony properties dev\\tony-properties\\public\\images\\service-3.png",
+      "cloudinaryUrl": "https://res.cloudinary.com/tony-properties/image/upload/v1755330930/tony-properties/service-3.png",
+      "publicId": "tony-properties/service-3",
+      "width": 185,
+      "height": 140,
+      "format": "png",
+      "size": 2420
+    }
+  ]
+}
