@@ -11,8 +11,7 @@
     "update-properties": "node scripts/update-properties-with-cloudinary.js",
     "migrate-to-cloudinary": "node scripts/migrate-to-cloudinary.js",
     "migrate-to-supabase": "node scripts/migrate-to-supabase.js",
-    "re-enable-rls": "echo 'Run the SQL script in scripts/re-enable-rls.sql in your Supabase SQL Editor'",
-    "add-update-permissions": "echo 'Run the SQL script in scripts/add-update-permissions.sql in your Supabase SQL Editor'"
+    "re-enable-rls": "echo 'Run the SQL script in scripts/re-enable-rls.sql in your Supabase SQL Editor'"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.55.0",

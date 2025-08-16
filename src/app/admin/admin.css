@@ -1052,26 +1052,6 @@
   font-size: 1.25rem;
 }
 
-/* Debug Banner */
-.debug-banner {
-  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-  border: 2px solid #2563eb;
-  color: #1d4ed8;
-  padding: 1rem 1.5rem;
-  border-radius: 1rem;
-  margin-bottom: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  font-weight: 600;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  animation: slideInDown 0.3s ease;
-}
-
-.debug-banner span {
-  font-size: 1.25rem;
-}
-
 @keyframes slideInDown {
   from {
     opacity: 0;

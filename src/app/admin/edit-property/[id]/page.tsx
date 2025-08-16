@@ -140,11 +140,8 @@ export default function EditProperty() {
     try {
       setLoading(true)
       
-      console.log('🔄 Starting property update...', { propertyId, formData })
-      
       // Check if user is authenticated
       const { data: { user } } = await supabase.auth.getUser()
-      console.log('👤 Current user:', user)
       
       if (!user) {
         setError('You must be logged in to update properties')
@@ -170,24 +167,16 @@ export default function EditProperty() {
         updated_at: new Date().toISOString()
       }
       
-      console.log('📝 Update data being sent:', updateData)
-      
-      const { data: updateResult, error: updateError } = await supabase
+      const { error: updateError } = await supabase
         .from('properties')
         .update(updateData)
         .eq('id', propertyId)
-        .select()
-
-      console.log('📊 Update result:', updateResult)
-      console.log('❌ Update error:', updateError)
 
       if (updateError) {
-        console.error('❌ Error updating property:', updateError)
-        setError(`Failed to update property: ${updateError.message}`)
+        setError('Failed to update property. Please try again.')
         return
       }
       
-      console.log('✅ Property updated successfully!')
       setShowSuccess(true)
       
       // Redirect after 2 seconds
@@ -195,7 +184,6 @@ export default function EditProperty() {
         router.push('/admin/properties')
       }, 2000)
     } catch (err) {
-      console.error('❌ Error in handleSubmit:', err)
       setError('An unexpected error occurred. Please try again.')
     } finally {
       setLoading(false)
@@ -217,20 +205,6 @@ export default function EditProperty() {
         <p>{error}</p>
         <button onClick={() => router.push('/admin/properties')}>
           Back to Properties
-        </button>
-        <button 
-          onClick={async () => {
-            console.log('🧪 Testing property access...')
-            const { data, error } = await supabase
-              .from('properties')
-              .select('*')
-              .eq('id', propertyId)
-              .single()
-            console.log('📖 Read test result:', { data, error })
-          }}
-          style={{ marginLeft: '10px' }}
-        >
-          Test Property Access
         </button>
       </div>
     )
