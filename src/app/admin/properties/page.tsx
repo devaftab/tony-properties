@@ -21,6 +21,7 @@ export default function AdminProperties() {
   const [deletingProperties, setDeletingProperties] = useState<Set<number>>(new Set())
   const [isBulkDeleting, setIsBulkDeleting] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false)
   const [propertyToDelete, setPropertyToDelete] = useState<{ id: number; title: string } | null>(null)
   const [successMessage, setSuccessMessage] = useState<string | null>(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -153,71 +154,75 @@ export default function AdminProperties() {
     )
   }
 
-  const handleDeleteSelected = async () => {
-    if (confirm(`Are you sure you want to delete ${selectedProperties.length} properties? This action cannot be undone.`)) {
-      try {
-        setIsBulkDeleting(true)
-        const deletedIds: number[] = []
-        const failedDeletions: string[] = []
-
-        for (const id of selectedProperties) {
-          try {
-            setDeletingProperties(prev => new Set(prev).add(id))
-            
-            // Delete property images first
-            await supabase
-              .from('property_images')
-              .delete()
-              .eq('property_id', id)
-
-            // Delete property amenities
-            await supabase
-              .from('property_amenities')
-              .delete()
-              .eq('property_id', id)
-
-            // Finally delete the property
-            await supabase
-              .from('properties')
-              .delete()
-              .eq('id', id)
-
-            deletedIds.push(id)
-          } catch (error) {
-            console.error(`Error deleting property ${id}:`, error)
-            failedDeletions.push(`Property ID ${id}`)
-          }
-        }
-
-        // Update local state
-        setProperties(prev => {
-          const newProperties = prev.filter(p => !selectedProperties.includes(p.id))
-          return newProperties
-        })
-        setSelectedProperties([])
-
-        // Show results
-        if (deletedIds.length > 0) {
-          alert(`Successfully deleted ${deletedIds.length} properties!`)
-        }
-        
-        if (failedDeletions.length > 0) {
-          alert(`Failed to delete: ${failedDeletions.join(', ')}`)
-        }
-
-        // Force refresh from database to ensure consistency
-        setTimeout(() => {
-          fetchProperties()
-        }, 500)
-
-      } catch (error) {
-        console.error('Error in bulk delete operation:', error)
-        alert(`Bulk delete operation failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
-      } finally {
-        setIsBulkDeleting(false)
-      }
-    }
+  const handleDeleteSelected = () => {
+    if (selectedProperties.length === 0) return
+    setShowBulkDeleteConfirm(true)
   }
+
+    const confirmBulkDelete = async () => {
+    try {
+      setIsBulkDeleting(true)
+      const deletedIds: number[] = []
+      const failedDeletions: string[] = []
+
+      for (const id of selectedProperties) {
+        try {
+          setDeletingProperties(prev => new Set(prev).add(id))
+          
+          // Delete property images first
+          await supabase
+            .from('property_images')
+            .delete()
+            .eq('property_id', id)
+
+          // Delete property amenities
+          await supabase
+            .from('property_amenities')
+            .delete()
+            .eq('property_id', id)
+
+          // Finally delete the property
+          await supabase
+            .from('properties')
+            .delete()
+            .eq('id', id)
+
+          deletedIds.push(id)
+        } catch (error) {
+          console.error(`Error deleting property ${id}:`, error)
+          failedDeletions.push(`Property ID ${id}`)
+        }
+      }
+
+      // Update local state
+      setProperties(prev => {
+        const newProperties = prev.filter(p => !selectedProperties.includes(p.id))
+        return newProperties
+      })
+      setSelectedProperties([])
+
+      // Show results
+      if (deletedIds.length > 0) {
+        alert(`Successfully deleted ${deletedIds.length} properties!`)
+      }
+      
+      if (failedDeletions.length > 0) {
+        alert(`Failed to delete: ${failedDeletions.join(', ')}`)
+      }
+
+      // Force refresh from database to ensure consistency
+      setTimeout(() => {
+        fetchProperties()
+      }, 500)
+
+         } catch (error) {
+       console.error('Error in bulk delete operation:', error)
+       alert(`Bulk delete operation failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+     } finally {
+       setIsBulkDeleting(false)
+       setShowBulkDeleteConfirm(false)
+     }
+   }
 
   const handleDeleteProperty = async (id: number, title: string) => {
     setPropertyToDelete({ id, title })
@@ -359,6 +364,10 @@ export default function AdminProperties() {
     setPropertyToDelete(null)
   }
 
+  const cancelBulkDelete = () => {
+    setShowBulkDeleteConfirm(false)
+  }
+
   return (
     <div className="admin-properties-page">
       <div className="page-header">
@@ -456,6 +465,32 @@ export default function AdminProperties() {
                 disabled={deletingProperties.has(propertyToDelete.id)}
               >
                 {deletingProperties.has(propertyToDelete.id) ? 'Deleting...' : 'Delete Property'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bulk Delete Confirmation Modal */}
+      {showBulkDeleteConfirm && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h3>Confirm Bulk Delete</h3>
+            <p>Are you sure you want to delete {selectedProperties.length} selected properties? This action cannot be undone.</p>
+            <div className="modal-actions">
+              <button 
+                className="btn-secondary" 
+                onClick={cancelBulkDelete}
+                disabled={isBulkDeleting}
+              >
+                Cancel
+              </button>
+              <button 
+                className="btn-danger" 
+                onClick={confirmBulkDelete}
+                disabled={isBulkDeleting}
+              >
+                {isBulkDeleting ? 'Deleting...' : `Delete ${selectedProperties.length} Properties`}
               </button>
             </div>
           </div>
