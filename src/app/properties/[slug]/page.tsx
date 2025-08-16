@@ -1,29 +1,91 @@
+'use client'
 import Image from 'next/image'
 import Link from 'next/link'
 import Header from '../../components/Header'
 import Footer from '../../components/Footer'
 import { IoLocationOutline, IoBedOutline, IoCheckmarkCircleOutline } from 'react-icons/io5'
-import { allProperties } from '../../data/properties'
+import { supabase } from '@/lib/supabase'
+import { useEffect, useState, use } from 'react'
 
 interface PropertyPageProps {
-  params: Promise<{
+  params: {
     slug: string
-  }>
+  }
 }
 
-export default async function PropertyPage({ params }: PropertyPageProps) {
-  const { slug } = await params
+export default function PropertyPage({ params }: PropertyPageProps) {
+  const { slug } = use(params)
+  const [property, setProperty] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
 
-  // Find property by slug from the data
-  const property = allProperties.find(p => p.slug === slug)
+  // Fetch property from Supabase when component mounts
+  useEffect(() => {
+    fetchProperty()
+  }, [slug])
 
-  if (!property) {
+  const fetchProperty = async () => {
+    try {
+      setLoading(true)
+      setError(null)
+
+      // Fetch property from Supabase
+      const { data: properties, error: propertyError } = await supabase
+        .from('properties')
+        .select('*')
+        .eq('slug', slug)
+        .single()
+
+      if (propertyError || !properties) {
+        setError('Property not found')
+        setLoading(false)
+        return
+      }
+
+      // Get property images
+      const { data: images } = await supabase
+        .from('property_images')
+        .select('*')
+        .eq('property_id', properties.id)
+        .order('sort_order', { ascending: true })
+
+      const propertyData = {
+        ...properties,
+        image: images?.[0]?.thumbnail_url || images?.[0]?.url || '/images/property-1.jpg'
+      }
+
+      setProperty(propertyData)
+    } catch (err: any) {
+      setError(err.message || 'Failed to load property')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+
+
+  // Loading state - check this FIRST
+  if (loading) {
+    return (
+      <>
+        <Header />
+        <div style={{ padding: '100px 20px', textAlign: 'center' }}>
+          <h1>Loading Property...</h1>
+          <p>Please wait while we fetch the property details.</p>
+        </div>
+        <Footer />
+      </>
+    )
+  }
+
+  // Error state - check this SECOND
+  if (error || !property) {
     return (
       <>
         <Header />
         <div style={{ padding: '100px 20px', textAlign: 'center' }}>
           <h1>Property Not Found</h1>
-          <p>{`The property you&apos;re looking for doesn&apos;t exist.`}</p>
+          <p>{error || 'The property you&apos;re looking for doesn&apos;t exist.'}</p>
           <Link href="/properties" style={{ color: '#3b82f6', textDecoration: 'underline' }}>
             Back to Properties
           </Link>
@@ -33,38 +95,34 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
     )
   }
 
-  // Property data from the found property
-  const getPropertyData = () => {
-    return {
-      title: property.title,
-      location: property.location,
-      price: property.price,
-      period: property.period,
-      badge: property.badge,
-      badgeClass: property.badgeClass,
-      description: property.description,
-      longDescription: property.description + ' This property offers excellent value and is located in a prime area with great connectivity.',
-      specs: [
-        { icon: 'bed-outline', value: property.bedrooms.toString(), label: 'Bedrooms' },
-        { icon: 'man-outline', value: property.bathrooms.toString(), label: 'Bathrooms' },
-        { icon: 'home-outline', value: property.area, label: property.areaUnit }
-      ],
-      amenities: [
-        '24/7 Security', 'Power Backup', 'Water Supply', 'Internet Ready',
-        'CCTV Surveillance', 'Elevator', 'Garden Area', 'Children\'s Play Area'
-      ],
-      highlights: [
-        'Prime Location', 'Modern Construction', 'Fully Furnished',
-        'Ready to Move', 'Excellent Connectivity', 'Family Friendly'
-      ],
-      locationInfo: [
-        'Metro Station: 0.5 km', 'Market: 0.3 km', 'Hospital: 1.2 km',
-        'School: 0.8 km', 'Airport: 15 km', 'Railway Station: 8 km'
-      ]
-    }
+  // Property data from the fetched property - only create this AFTER we know property exists
+  const propertyData = {
+    title: property.title,
+    location: property.location,
+    price: property.price,
+    period: property.period,
+    badge: property.badge,
+    badge_class: property.badge_class,
+    description: property.description,
+    longDescription: property.description + ' This property offers excellent value and is located in a prime area with great connectivity.',
+    specs: [
+      { icon: 'bed-outline', value: property.bedrooms.toString(), label: 'Bedrooms' },
+      { icon: 'man-outline', value: property.bathrooms.toString(), label: 'Bathrooms' },
+      { icon: 'home-outline', value: property.area, label: property.area_unit }
+    ],
+    amenities: [
+      '24/7 Security', 'Power Backup', 'Water Supply', 'Internet Ready',
+      'CCTV Surveillance', 'Elevator', 'Garden Area', 'Children\'s Play Area'
+    ],
+    highlights: [
+      'Prime Location', 'Modern Construction', 'Fully Furnished',
+      'Ready to Move', 'Excellent Connectivity', 'Family Friendly'
+    ],
+    locationInfo: [
+      'Metro Station: 0.5 km', 'Market: 0.3 km', 'Hospital: 1.2 km',
+      'School: 0.8 km', 'Airport: 15 km', 'Railway Station: 8 km'
+    ]
   }
-
-  const propertyData = getPropertyData()
 
   return (
     <>
@@ -84,7 +142,7 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
                 <div className="property-price">
                   <strong>{propertyData.price}</strong>{propertyData.period}
                 </div>
-                <div className={`property-badge ${propertyData.badgeClass}`}>{propertyData.badge}</div>
+                <div className={`property-badge ${propertyData.badge_class}`}>{propertyData.badge}</div>
               </div>
               
               <div className="property-hero-image">
@@ -229,13 +287,15 @@ export default async function PropertyPage({ params }: PropertyPageProps) {
             <h2 className="h2">Similar Properties</h2>
             <div className="similar-properties-grid">
               {['3bhk', 'apartments', 'floor', 'apartment'].filter(s => s !== slug).map((similarSlug) => {
-                const similarProperty = allProperties.find(p => p.slug === similarSlug)
-                if (!similarProperty) return null
-                
+                // For now, show static similar properties until we implement proper similar property fetching
                 const similarData = {
-                  title: similarProperty.title,
-                  price: similarProperty.price,
-                  period: similarProperty.period
+                  title: similarSlug === '3bhk' ? '3BHK Apartment' : 
+                         similarSlug === 'apartments' ? 'Modern Apartments' : 
+                         similarSlug === 'floor' ? 'Elegant Floor' : 'Cozy Apartment',
+                  price: similarSlug === '3bhk' ? '₹34,900' : 
+                         similarSlug === 'apartments' ? '₹35,90,000' : 
+                         similarSlug === 'floor' ? '₹50,000' : '₹34,000',
+                  period: similarSlug === 'apartments' ? '' : '/Month'
                 }
                 
                 return (

@@ -13,7 +13,7 @@ function AdminLayoutContent({
   children: React.ReactNode
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const { isAuthenticated, isLoading, logout } = useAuth()
+  const { user, loading, signOut } = useAuth()
   const pathname = usePathname()
   const router = useRouter()
 
@@ -22,10 +22,10 @@ function AdminLayoutContent({
   
   // Handle authentication redirect
   useEffect(() => {
-    if (!isLoading && !isAuthenticated && !isLoginPage) {
+    if (!loading && !user && !isLoginPage) {
       router.push('/admin/login')
     }
-  }, [isLoading, isAuthenticated, isLoginPage, router])
+  }, [loading, user, isLoginPage, router])
   
   // If on login page, render children without admin layout
   if (isLoginPage) {
@@ -33,7 +33,7 @@ function AdminLayoutContent({
   }
 
   // Show loading while checking authentication
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="admin-loading">
         <div className="loading-spinner"></div>
@@ -43,14 +43,15 @@ function AdminLayoutContent({
   }
 
   // Don't render admin layout if not authenticated (will redirect)
-  if (!isAuthenticated) {
+  if (!user) {
     return null
   }
 
   const handleLogout = () => {
     // Show confirmation dialog
     if (confirm('Are you sure you want to logout?')) {
-      logout()
+      signOut()
+      router.push('/admin/login')
     }
   }
 
@@ -112,7 +113,7 @@ function AdminLayoutContent({
           <div className="header-content">
             <h1>Property Management Dashboard</h1>
             <div className="user-info">
-              <span>Welcome, Admin</span>
+              <span>Welcome, {user.email}</span>
             </div>
           </div>
         </header>

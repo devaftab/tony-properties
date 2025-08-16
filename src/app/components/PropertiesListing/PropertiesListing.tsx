@@ -4,21 +4,23 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { IoLocationOutline, IoCameraOutline, IoFilmOutline, IoBedOutline, IoManOutline, IoHomeOutline, IoArrowForwardOutline, IoChevronBackOutline, IoChevronForwardOutline } from '../icons'
 import styles from './PropertiesListing.module.css'
-import { allProperties } from '../../data/properties'
+import { supabase } from '@/lib/supabase'
 
 const ITEMS_PER_PAGE = 6
 
 export default function PropertiesListing() {
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedFilter, setSelectedFilter] = useState('all')
+  const [properties, setProperties] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
   // Filter properties based on selection
   const filteredProperties = useMemo(() => {
-    if (selectedFilter === 'all') return allProperties
-    if (selectedFilter === 'rent') return allProperties.filter(p => p.period === '/Month')
-    if (selectedFilter === 'sale') return allProperties.filter(p => p.period === '')
-    return allProperties
-  }, [selectedFilter])
+    if (selectedFilter === 'all') return properties
+    if (selectedFilter === 'rent') return properties.filter(p => p.period === '/Month')
+    if (selectedFilter === 'sale') return properties.filter(p => p.period === '')
+    return properties
+  }, [selectedFilter, properties])
 
   // Calculate pagination
   const totalPages = Math.ceil(filteredProperties.length / ITEMS_PER_PAGE)
@@ -30,10 +32,64 @@ export default function PropertiesListing() {
     setCurrentPage(page)
   }
 
+  // Fetch properties from Supabase when component mounts
+  useEffect(() => {
+    fetchProperties()
+  }, [])
+
   // Handle scrolling to top when page changes
   useEffect(() => {
     window.scrollTo(0, 0)
   }, [currentPage])
+
+  // Function to fetch properties from Supabase
+  const fetchProperties = async () => {
+    try {
+      setLoading(true)
+      
+      // Get all properties
+      const { data: propertiesData, error: propertiesError } = await supabase
+        .from('properties')
+        .select('*')
+        .order('created_at', { ascending: false })
+
+      if (propertiesError) {
+        console.error('Error fetching properties:', error)
+        return
+      }
+
+      // Get all property images
+      const { data: imagesData, error: imagesError } = await supabase
+        .from('property_images')
+        .select('*')
+        .eq('is_primary', true)
+
+      if (imagesError) {
+        console.error('Error fetching images:', imagesError)
+      }
+
+      // Create a map of property_id to image
+      const imageMap = new Map()
+      imagesData?.forEach(img => {
+        imageMap.set(img.property_id, img)
+      })
+
+      // Transform data to match Property interface
+      const transformedProperties = propertiesData?.map(property => ({
+        ...property,
+        image: imageMap.get(property.id)?.thumbnail_url || 
+               imageMap.get(property.id)?.url || 
+               '/images/property-1.jpg' // Fallback image
+      })) || []
+
+      setProperties(transformedProperties)
+      console.log(`✅ Loaded ${transformedProperties.length} properties from Supabase for public page`)
+    } catch (error) {
+      console.error('Error fetching properties:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleFilterChange = (filter: string) => {
     setSelectedFilter(filter)
@@ -53,25 +109,40 @@ export default function PropertiesListing() {
             className={`${styles.filterBtn} ${selectedFilter === 'all' ? styles.active : ''}`}
             onClick={() => handleFilterChange('all')}
           >
-            All Properties ({allProperties.length})
+            All Properties ({properties.length})
           </button>
           <button 
             className={`${styles.filterBtn} ${selectedFilter === 'rent' ? styles.active : ''}`}
             onClick={() => handleFilterChange('rent')}
           >
-            For Rent ({allProperties.filter(p => p.period === '/Month').length})
+            For Rent ({properties.filter(p => p.period === '/Month').length})
           </button>
           <button 
             className={`${styles.filterBtn} ${selectedFilter === 'sale' ? styles.active : ''}`}
             onClick={() => handleFilterChange('sale')}
           >
-            For Sale ({allProperties.filter(p => p.period === '').length})
+            For Sale ({properties.filter(p => p.period === '').length})
           </button>
         </div>
 
+        {/* Loading State */}
+        {loading && (
+          <div className={styles.loading}>
+            <p>Loading properties...</p>
+          </div>
+        )}
+
+        {/* No Properties State */}
+        {!loading && properties.length === 0 && (
+          <div className={styles.noProperties}>
+            <p>No properties found.</p>
+          </div>
+        )}
+
         {/* Properties Grid */}
-        <div className={styles.propertiesGrid}>
-          {currentProperties.map((property) => (
+        {!loading && properties.length > 0 && (
+          <div className={styles.propertiesGrid}>
+            {currentProperties.map((property) => (
             <div key={property.id} className={styles.propertyCard}>
               <figure className={styles.cardBanner}>
                 <Link href={`/properties/${property.slug}`}>
@@ -142,7 +213,8 @@ export default function PropertiesListing() {
               </div>
             </div>
           ))}
-        </div>
+          </div>
+        )}
 
         {/* Pagination */}
         {totalPages > 1 && (

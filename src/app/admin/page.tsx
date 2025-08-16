@@ -3,7 +3,22 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { IoAddOutline, IoListOutline, IoStatsChartOutline, IoLocationOutline, IoHomeOutline } from 'react-icons/io5'
-import { allProperties } from '../data/properties'
+import { supabase } from '@/lib/supabase'
+
+interface RecentProperty {
+  id: string
+  title: string
+  image: string
+  badge: string
+  badgeClass: string
+  location: string
+  price: string
+  period: string
+  bedrooms: number
+  bathrooms: number
+  area: number
+  areaUnit: string
+}
 
 export default function AdminDashboard() {
   const [stats, setStats] = useState({
@@ -11,21 +26,105 @@ export default function AdminDashboard() {
     forRent: 0,
     forSale: 0
   })
+  const [loading, setLoading] = useState(true)
+  const [recentProperties, setRecentProperties] = useState<RecentProperty[]>([])
+  const [recentLoading, setRecentLoading] = useState(true)
 
   useEffect(() => {
-    const calculateStats = () => {
-      const total = allProperties.length
-      const rent = allProperties.filter(p => p.period === '/Month').length
-      const sale = allProperties.filter(p => p.period === '').length
+    const fetchStats = async () => {
+      try {
+        setLoading(true)
+        
+        // Fetch total properties count
+        const { count: totalCount, error: totalError } = await supabase
+          .from('properties')
+          .select('*', { count: 'exact', head: true })
 
-      setStats({
-        totalProperties: total,
-        forRent: rent,
-        forSale: sale
-      })
+        if (totalError) {
+          console.error('Error fetching total properties:', totalError)
+          return
+        }
+
+        // Fetch properties for rent (with period = '/Month')
+        const { count: rentCount, error: rentError } = await supabase
+          .from('properties')
+          .select('*', { count: 'exact', head: true })
+          .eq('period', '/Month')
+
+        if (rentError) {
+          console.error('Error fetching rent properties:', rentError)
+          return
+        }
+
+        // Fetch properties for sale (with period = '')
+        const { count: saleCount, error: saleError } = await supabase
+          .from('properties')
+          .select('*', { count: 'exact', head: true })
+          .eq('period', '')
+
+        if (saleError) {
+          console.error('Error fetching sale properties:', saleError)
+          return
+        }
+
+        setStats({
+          totalProperties: totalCount || 0,
+          forRent: rentCount || 0,
+          forSale: saleCount || 0
+        })
+      } catch (error) {
+        console.error('Error fetching stats:', error)
+      } finally {
+        setLoading(false)
+      }
     }
 
-    calculateStats()
+    const fetchRecentProperties = async () => {
+      try {
+        setRecentLoading(true)
+        
+        // Fetch recent properties with their primary images
+        const { data: properties, error } = await supabase
+          .from('properties')
+          .select(`
+            *,
+            property_images!inner(url, is_primary)
+          `)
+          .eq('property_images.is_primary', true)
+          .order('created_at', { ascending: false })
+          .limit(6)
+
+        if (error) {
+          console.error('Error fetching recent properties:', error)
+          return
+        }
+
+        // Transform the data to match the expected format
+        const transformedProperties = properties.map(property => ({
+          id: property.id,
+          title: property.title,
+          image: property.property_images[0]?.url || '/images/property-1.jpg', // fallback image
+          badge: property.badge || 'For Sale',
+          badgeClass: property.period === '/Month' ? 'green' : 'orange',
+          location: property.location,
+          price: property.price,
+          period: property.period,
+          bedrooms: property.bedrooms,
+          bathrooms: property.bathrooms,
+          area: property.area,
+          areaUnit: property.area_unit || 'sq ft'
+        }))
+
+        setRecentProperties(transformedProperties)
+      } catch (error) {
+        console.error('Error fetching recent properties:', error)
+      } finally {
+        setRecentLoading(false)
+      }
+    }
+
+    fetchStats()
+    fetchRecentProperties()
   }, [])
 
   const quickActions = [
@@ -67,7 +166,7 @@ export default function AdminDashboard() {
             <IoHomeOutline />
           </div>
           <div className="stat-content">
-            <h3>{stats.totalProperties}</h3>
+            <h3>{loading ? '...' : stats.totalProperties}</h3>
             <p>Total Properties</p>
           </div>
         </div>
@@ -77,7 +176,7 @@ export default function AdminDashboard() {
             <IoLocationOutline />
           </div>
           <div className="stat-content">
-            <h3>{stats.forRent}</h3>
+            <h3>{loading ? '...' : stats.forRent}</h3>
             <p>For Rent</p>
           </div>
         </div>
@@ -87,12 +186,10 @@ export default function AdminDashboard() {
             <IoLocationOutline />
           </div>
           <div className="stat-content">
-            <h3>{stats.forSale}</h3>
+            <h3>{loading ? '...' : stats.forSale}</h3>
             <p>For Sale</p>
           </div>
         </div>
-
-
       </div>
 
       {/* Quick Actions */}
@@ -123,33 +220,39 @@ export default function AdminDashboard() {
         </div>
         
         <div className="recent-properties-grid">
-          {allProperties.slice(0, 6).map((property) => (
-            <div key={property.id} className="recent-property-card">
-              <div className="property-image">
-                <Image 
-                  src={property.image} 
-                  alt={property.title} 
-                  width={200}
-                  height={150}
-                />
-                <div className={`property-badge ${property.badgeClass}`}>
-                  {property.badge}
+          {recentLoading ? (
+            <p>Loading recent properties...</p>
+          ) : recentProperties.length === 0 ? (
+            <p>No recent properties found.</p>
+          ) : (
+            recentProperties.map((property) => (
+              <div key={property.id} className="recent-property-card">
+                <div className="property-image">
+                  <Image 
+                    src={property.image} 
+                    alt={property.title} 
+                    width={200}
+                    height={150}
+                  />
+                  <div className={`property-badge ${property.badgeClass}`}>
+                    {property.badge}
+                  </div>
+                </div>
+                <div className="property-info">
+                  <h4>{property.title}</h4>
+                  <p className="property-location">{property.location}</p>
+                  <p className="property-price">
+                    {property.price}{property.period}
+                  </p>
+                  <div className="property-details">
+                    <span>{property.bedrooms} beds</span>
+                    <span>{property.bathrooms} baths</span>
+                    <span>{property.area} {property.areaUnit}</span>
+                  </div>
                 </div>
               </div>
-              <div className="property-info">
-                <h4>{property.title}</h4>
-                <p className="property-location">{property.location}</p>
-                <p className="property-price">
-                  {property.price}{property.period}
-                </p>
-                <div className="property-details">
-                  <span>{property.bedrooms} beds</span>
-                  <span>{property.bathrooms} baths</span>
-                  <span>{property.area} {property.areaUnit}</span>
-                </div>
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>

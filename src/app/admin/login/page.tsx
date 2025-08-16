@@ -1,57 +1,114 @@
 'use client'
-import { useState } from 'react'
+
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { IoLockClosedOutline, IoPersonOutline, IoEyeOutline, IoEyeOffOutline, IoHomeOutline } from 'react-icons/io5'
 import { useAuth } from '../context/AuthContext'
 import '../admin.css'
+import { supabase } from '@/lib/supabase'
 
 export default function AdminLogin() {
-  const [credentials, setCredentials] = useState({
-    id: 'admin',
-    password: ''
-  })
+  const [emailOrUsername, setEmailOrUsername] = useState('')
+  const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
-  const [isLoading, setIsLoading] = useState(false)
+  const [isSignUp, setIsSignUp] = useState(false)
+
+  const { user, signIn, signInWithUsername, signUp } = useAuth()
   const router = useRouter()
-  const { login, isAuthenticated } = useAuth()
 
   // Redirect if already authenticated
-  if (isAuthenticated) {
-    router.push('/admin')
-    return null
-  }
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    setCredentials(prev => ({
-      ...prev,
-      [name]: value
-    }))
-    // Clear error when user starts typing
-    if (error) setError('')
-  }
+  useEffect(() => {
+    if (user) {
+      router.push('/admin')
+    }
+  }, [user, router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
+    setLoading(true)
     setError('')
 
-    // Simulate API call delay
-    await new Promise(resolve => setTimeout(resolve, 1000))
-
-    // Check credentials
-    if (credentials.id === 'admin' && credentials.password === 'Faith') {
-      // Use the auth context to login
-      login('admin-session-token', credentials.id)
-      
-      // Redirect to admin dashboard
-      router.push('/admin')
-    } else {
-      setError('Invalid credentials. Please try again.')
-      setIsLoading(false)
+    if (!emailOrUsername.trim() || !password.trim()) {
+      setError('Please fill in all fields')
+      setLoading(false)
+      return
     }
+
+    try {
+      let result: { error: any }
+
+      if (isSignUp) {
+        // For sign up, we can use either email or username
+        const isEmail = emailOrUsername.includes('@')
+        if (isEmail) {
+          // Check if email exists by attempting to sign up first
+          // If email exists, Supabase will return an error
+          result = await signUp(emailOrUsername, password, { username: emailOrUsername.split('@')[0] })
+          
+          // Check if the error is about existing user
+          if (result.error && result.error.message.includes('already registered')) {
+            setError('User already exists! Please switch to login mode and sign in with your credentials.')
+            setLoading(false)
+            return
+          }
+        } else {
+          // Sign up with username - generate a placeholder email
+          const placeholderEmail = `${emailOrUsername}@tonyproperties.local`
+          result = await signUp(placeholderEmail, password, { username: emailOrUsername })
+        }
+      } else {
+        // For sign in, try email first, then username
+        if (emailOrUsername.includes('@')) {
+          result = await signIn(emailOrUsername, password)
+        } else {
+          result = await signInWithUsername(emailOrUsername, password)
+        }
+      }
+
+      if (result.error) {
+        setError(result.error.message)
+      } else {
+        // Success - check if user needs email verification
+        if (isSignUp) {
+          // Check if the user is already confirmed
+          const { data: { user: currentUser } } = await supabase.auth.getUser()
+          if (currentUser?.email_confirmed_at) {
+            // Email already confirmed, redirect to admin
+            router.push('/admin')
+          } else {
+            // Email not confirmed yet
+            setError('Please check your email to confirm your account before signing in.')
+            setIsSignUp(false)
+          }
+        } else {
+          // For sign in, check if user is confirmed
+          const { data: { user: currentUser } } = await supabase.auth.getUser()
+          if (currentUser?.email_confirmed_at) {
+            // Email confirmed, redirect to admin
+            router.push('/admin')
+          } else {
+            // Email not confirmed, show error
+            setError('Please verify your email address before signing in.')
+            // Sign out the user since they can't access admin yet
+            await supabase.auth.signOut()
+          }
+        }
+      }
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const toggleMode = () => {
+    setIsSignUp(!isSignUp)
+    setError('')
+    setEmailOrUsername('')
+    setPassword('')
   }
 
   const togglePasswordVisibility = () => {
@@ -77,7 +134,7 @@ export default function AdminLogin() {
             <div className="login-icon">
               <IoLockClosedOutline />
             </div>
-            <h2>Admin Login</h2>
+            <h2>{isSignUp ? 'Create Admin Account' : 'Admin Login'}</h2>
             <p>Enter your credentials to access the admin dashboard</p>
           </div>
 
@@ -89,18 +146,18 @@ export default function AdminLogin() {
             )}
 
             <div className="form-group">
-              <label htmlFor="id">Admin ID</label>
+              <label htmlFor="emailOrUsername">Email or Username</label>
               <div className="input-wrapper">
                 <IoPersonOutline className="input-icon" />
                 <input
                   type="text"
-                  id="id"
-                  name="id"
-                  value={credentials.id}
-                  onChange={handleInputChange}
-                  placeholder="Enter admin ID"
+                  id="emailOrUsername"
+                  name="emailOrUsername"
+                  value={emailOrUsername}
+                  onChange={(e) => setEmailOrUsername(e.target.value)}
+                  placeholder="Enter email or username"
                   required
-                  autoComplete="username"
+                  autoComplete={isSignUp ? 'username' : 'username'}
                 />
               </div>
             </div>
@@ -113,11 +170,12 @@ export default function AdminLogin() {
                   type={showPassword ? 'text' : 'password'}
                   id="password"
                   name="password"
-                  value={credentials.password}
-                  onChange={handleInputChange}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
                   placeholder="Enter password"
                   required
-                  autoComplete="current-password"
+                  autoComplete={isSignUp ? 'new-password' : 'current-password'}
+                  minLength={6}
                 />
                 <button
                   type="button"
@@ -133,14 +191,26 @@ export default function AdminLogin() {
             <button
               type="submit"
               className="login-btn"
-              disabled={isLoading}
+              disabled={loading}
             >
-              {isLoading ? 'Signing In...' : 'Sign In'}
+              {loading ? (
+                <span className="loading-text">
+                  {isSignUp ? 'Creating Account...' : 'Signing In...'}
+                </span>
+              ) : (
+                isSignUp ? 'Create Account' : 'Sign In'
+              )}
             </button>
           </form>
 
           <div className="login-footer">
-            <p>Protected access only for authorized personnel</p>
+            <button
+              type="button"
+              onClick={toggleMode}
+              className="toggle-mode-btn"
+            >
+              {isSignUp ? 'Already have an account? Sign in' : "Don't have an account? Sign up"}
+            </button>
           </div>
         </div>
       </div>

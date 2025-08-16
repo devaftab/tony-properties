@@ -1,77 +1,92 @@
 'use client'
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+
+import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
+import { supabase } from '@/lib/supabase'
+import { User, Session } from '@supabase/supabase-js'
 
 interface AuthContextType {
-  isAuthenticated: boolean
-  isLoading: boolean
-  login: (token: string, user: string) => void
-  logout: () => void
-  checkAuth: () => boolean
+  user: User | null
+  session: Session | null
+  loading: boolean
+  signIn: (email: string, password: string) => Promise<{ error: any }>
+  signInWithUsername: (username: string, password: string) => Promise<{ error: any }>
+  signOut: () => Promise<void>
+  signUp: (email: string, password: string, metadata?: { username?: string }) => Promise<{ error: any }>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-export function useAuth() {
-  const context = useContext(AuthContext)
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider')
-  }
-  return context
-}
-
-interface AuthProviderProps {
-  children: ReactNode
-}
-
-export function AuthProvider({ children }: AuthProviderProps) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [isLoading, setIsLoading] = useState(true)
-
-  const checkAuth = () => {
-    const adminToken = localStorage.getItem('adminToken')
-    const adminUser = localStorage.getItem('adminUser')
-    return !!(adminToken && adminUser)
-  }
-
-  const login = (token: string, user: string) => {
-    localStorage.setItem('adminToken', token)
-    localStorage.setItem('adminUser', user)
-    setIsAuthenticated(true)
-  }
-
-  const logout = () => {
-    localStorage.removeItem('adminToken')
-    localStorage.removeItem('adminUser')
-    sessionStorage.clear()
-    setIsAuthenticated(false)
-    // Use window.location for logout to ensure full page reload
-    window.location.href = '/admin/login'
-  }
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<User | null>(null)
+  const [session, setSession] = useState<Session | null>(null)
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Check authentication status on mount
-    const isAuth = checkAuth()
-    setIsAuthenticated(isAuth)
-    setIsLoading(false)
-  }, [])
-
-  // Listen for storage changes
-  useEffect(() => {
-    const handleStorageChange = () => {
-      const isAuth = checkAuth()
-      setIsAuthenticated(isAuth)
+    // Get initial session
+    const getInitialSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession()
+      setSession(session)
+      setUser(session?.user ?? null)
+      setLoading(false)
     }
 
-    window.addEventListener('storage', handleStorageChange)
-    return () => window.removeEventListener('storage', handleStorageChange)
+    getInitialSession()
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setSession(session)
+        setUser(session?.user ?? null)
+        setLoading(false)
+      }
+    )
+
+    return () => subscription.unsubscribe()
   }, [])
 
+  const signIn = async (email: string, password: string) => {
+    const { error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    })
+    return { error }
+  }
+
+  const signInWithUsername = async (username: string, password: string) => {
+    // For username-based login, we'll need to store username-email mappings
+    // For now, we'll use a simple approach with a generated email
+    const generatedEmail = `${username}@admin.local`
+    
+    const { error } = await supabase.auth.signInWithPassword({
+      email: generatedEmail,
+      password,
+    })
+    return { error }
+  }
+
+  const signUp = async (email: string, password: string, metadata?: { username?: string }) => {
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: metadata
+      }
+    })
+    return { error }
+  }
+
+  const signOut = async () => {
+    await supabase.auth.signOut()
+  }
+
   const value = {
-    isAuthenticated,
-    isLoading,
-    login,
-    logout,
-    checkAuth
+    user,
+    session,
+    loading,
+    signIn,
+    signInWithUsername,
+    signOut,
+    signUp,
   }
 
   return (
@@ -79,4 +94,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
       {children}
     </AuthContext.Provider>
   )
+}
+
+export function useAuth() {
+  const context = useContext(AuthContext)
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider')
+  }
+  return context
 }

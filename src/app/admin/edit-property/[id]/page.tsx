@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Image from 'next/image'
 import { IoCloudUploadOutline, IoCheckmarkCircleOutline, IoArrowBackOutline } from 'react-icons/io5'
-import { allProperties } from '../../../data/properties'
+import { supabase } from '@/lib/supabase'
 
 export default function EditProperty() {
   const router = useRouter()
@@ -22,36 +22,81 @@ export default function EditProperty() {
     bedrooms: 0,
     bathrooms: 0,
     area: '',
-    areaUnit: 'sq ft'
+    areaUnit: 'sq ft',
+    propertyType: '',
+    parking: '',
+    yearBuilt: '',
+    slug: ''
   })
   
   const [showSuccess, setShowSuccess] = useState(false)
   const [imagePreview, setImagePreview] = useState('')
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
 
   useEffect(() => {
-    // Find the property to edit
-    const property = allProperties.find(p => p.id === propertyId)
-    if (property) {
-      setFormData({
-        title: property.title,
-        location: property.location,
-        price: property.price,
-        period: property.period,
-        badge: property.badge,
-        badgeClass: property.badgeClass,
-        image: property.image,
-        description: property.description,
-        bedrooms: property.bedrooms,
-        bathrooms: property.bathrooms,
-        area: property.area,
-        areaUnit: property.areaUnit
-      })
-      setImagePreview(property.image)
-    } else {
-      // Property not found, redirect back
-      router.push('/admin/properties')
+    const fetchProperty = async () => {
+      try {
+        setLoading(true)
+        
+        // Fetch the property data from Supabase
+        const { data: property, error: fetchError } = await supabase
+          .from('properties')
+          .select(`
+            *,
+            property_images(url, is_primary)
+          `)
+          .eq('id', propertyId)
+          .single()
+
+        if (fetchError) {
+          console.error('Error fetching property:', fetchError)
+          setError('Failed to load property data')
+          return
+        }
+
+        if (!property) {
+          setError('Property not found')
+          return
+        }
+
+        // Get the primary image URL
+        const primaryImage = property.property_images?.find((img: any) => img.is_primary)?.url || 
+                           property.property_images?.[0]?.url || 
+                           '/images/property-1.jpg'
+
+        setFormData({
+          title: property.title || '',
+          location: property.location || '',
+          price: property.price || '',
+          period: property.period || '',
+          badge: property.badge || 'For Sale',
+          badgeClass: property.period === '/Month' ? 'green' : 'orange',
+          image: primaryImage,
+          description: property.description || '',
+          bedrooms: property.bedrooms || 0,
+          bathrooms: property.bathrooms || 0,
+          area: property.area || '',
+          areaUnit: property.area_unit || 'sq ft',
+          propertyType: property.property_type || '',
+          parking: property.parking || '',
+          yearBuilt: property.year_built || '',
+          slug: property.slug || ''
+        })
+        
+        setImagePreview(primaryImage)
+      } catch (err) {
+        console.error('Error in fetchProperty:', err)
+        setError('An unexpected error occurred')
+      } finally {
+        setLoading(false)
+      }
     }
-  }, [propertyId, router])
+
+    if (propertyId) {
+      fetchProperty()
+    }
+  }, [propertyId])
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -59,6 +104,21 @@ export default function EditProperty() {
       ...prev,
       [name]: name === 'bedrooms' || name === 'bathrooms' ? parseInt(value) || 0 : value
     }))
+
+    // Auto-generate slug from title
+    if (name === 'title') {
+      const slug = value
+        .toLowerCase()
+        .replace(/[^a-z0-9\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .trim()
+      
+      setFormData(prev => ({
+        ...prev,
+        slug: slug
+      }))
+    }
   }
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,15 +137,103 @@ export default function EditProperty() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    
-    setShowSuccess(true)
-    
-    // Redirect after 2 seconds
-    setTimeout(() => {
-      router.push('/admin/properties')
-    }, 2000)
+    try {
+      setLoading(true)
+      
+      console.log('🔄 Starting property update...', { propertyId, formData })
+      
+      // Check if user is authenticated
+      const { data: { user } } = await supabase.auth.getUser()
+      console.log('👤 Current user:', user)
+      
+      if (!user) {
+        setError('You must be logged in to update properties')
+        return
+      }
+      
+      // Update the property in Supabase
+      const updateData = {
+        title: formData.title,
+        slug: formData.slug,
+        location: formData.location,
+        price: formData.price,
+        period: formData.period,
+        badge: formData.badge,
+        description: formData.description,
+        bedrooms: formData.bedrooms,
+        bathrooms: formData.bathrooms,
+        area: formData.area,
+        area_unit: formData.areaUnit,
+        property_type: formData.propertyType,
+        parking: formData.parking,
+        year_built: formData.yearBuilt,
+        updated_at: new Date().toISOString()
+      }
+      
+      console.log('📝 Update data being sent:', updateData)
+      
+      const { data: updateResult, error: updateError } = await supabase
+        .from('properties')
+        .update(updateData)
+        .eq('id', propertyId)
+        .select()
+
+      console.log('📊 Update result:', updateResult)
+      console.log('❌ Update error:', updateError)
+
+      if (updateError) {
+        console.error('❌ Error updating property:', updateError)
+        setError(`Failed to update property: ${updateError.message}`)
+        return
+      }
+      
+      console.log('✅ Property updated successfully!')
+      setShowSuccess(true)
+      
+      // Redirect after 2 seconds
+      setTimeout(() => {
+        router.push('/admin/properties')
+      }, 2000)
+    } catch (err) {
+      console.error('❌ Error in handleSubmit:', err)
+      setError('An unexpected error occurred. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="admin-loading">
+        <div className="loading-spinner"></div>
+        <p>Loading property data...</p>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="error-message">
+        <p>{error}</p>
+        <button onClick={() => router.push('/admin/properties')}>
+          Back to Properties
+        </button>
+        <button 
+          onClick={async () => {
+            console.log('🧪 Testing property access...')
+            const { data, error } = await supabase
+              .from('properties')
+              .select('*')
+              .eq('id', propertyId)
+              .single()
+            console.log('📖 Read test result:', { data, error })
+          }}
+          style={{ marginLeft: '10px' }}
+        >
+          Test Property Access
+        </button>
+      </div>
+    )
   }
 
   if (showSuccess) {
@@ -129,6 +277,20 @@ export default function EditProperty() {
                 onChange={handleInputChange}
                 required
               />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="slug">Property Slug *</label>
+              <input
+                type="text"
+                id="slug"
+                name="slug"
+                value={formData.slug || ''}
+                onChange={handleInputChange}
+                required
+                placeholder="e.g., modern-apartment-downtown"
+              />
+              <small>URL-friendly version of the title (auto-generated from title)</small>
             </div>
 
             <div className="form-group">
@@ -195,6 +357,56 @@ export default function EditProperty() {
                   <option value="orange">Orange</option>
                 </select>
               </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label htmlFor="propertyType">Property Type</label>
+                <select
+                  id="propertyType"
+                  name="propertyType"
+                  value={formData.propertyType}
+                  onChange={handleInputChange}
+                >
+                  <option value="">Select Type</option>
+                  <option value="Apartment">Apartment</option>
+                  <option value="House">House</option>
+                  <option value="Villa">Villa</option>
+                  <option value="Condo">Condo</option>
+                  <option value="Townhouse">Townhouse</option>
+                  <option value="Land">Land</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="parking">Parking</label>
+                <select
+                  id="parking"
+                  name="parking"
+                  value={formData.parking}
+                  onChange={handleInputChange}
+                >
+                  <option value="">Select Parking</option>
+                  <option value="Yes">Yes</option>
+                  <option value="No">No</option>
+                  <option value="Street">Street Parking</option>
+                  <option value="Garage">Garage</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="yearBuilt">Year Built</label>
+              <input
+                type="number"
+                id="yearBuilt"
+                name="yearBuilt"
+                value={formData.yearBuilt}
+                onChange={handleInputChange}
+                min="1900"
+                max={new Date().getFullYear()}
+                placeholder="e.g., 2020"
+              />
             </div>
           </div>
 

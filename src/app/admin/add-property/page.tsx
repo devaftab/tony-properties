@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation'
 import Image from 'next/image'
 import { IoCloudUploadOutline, IoCheckmarkCircleOutline, IoClose, IoAdd, IoWarning } from 'react-icons/io5'
 import { uploadImageToCloudinary, UploadedImage, ImageUploadError, imageUtils } from '@/lib/imageUpload'
-import { addProperty } from '@/app/data/properties'
+import { supabase } from '@/lib/supabase'
 
 interface PropertyImage {
   id: string
@@ -243,11 +243,100 @@ export default function AddProperty() {
 
       console.log('New Property Data:', propertyData)
       
-      // Save the property to our data store
-      const savedProperty = addProperty(propertyData)
-      console.log('Property saved:', savedProperty)
-      console.log('Property image URL:', savedProperty.image)
-      console.log('Property images array:', savedProperty.images)
+      // Save the property to Supabase
+      const { data: savedProperty, error: propertyError } = await supabase
+        .from('properties')
+        .insert({
+          title: propertyData.title,
+          slug: propertyData.slug,
+          description: propertyData.description,
+          price: parseFloat(propertyData.price),
+          period: propertyData.period,
+          badge: propertyData.badge,
+          badge_class: propertyData.badgeClass,
+          bedrooms: propertyData.bedrooms,
+          bathrooms: propertyData.bathrooms,
+          area: parseFloat(propertyData.area),
+          area_unit: propertyData.areaUnit,
+          property_type: propertyData.propertyType,
+          parking: propertyData.parking,
+          year_built: propertyData.yearBuilt,
+          location: propertyData.location
+        })
+        .select()
+        .single()
+
+      if (propertyError) {
+        throw new Error(`Failed to save property: ${propertyError.message}`)
+      }
+
+      console.log('Property saved to Supabase:', savedProperty)
+
+      // Save property images to Supabase
+      if (propertyData.images.length > 0) {
+        const imageInserts = propertyData.images.map((img, index) => ({
+          property_id: savedProperty.id,
+          url: img.url,
+          thumbnail_url: img.thumbnailUrl,
+          medium_url: img.mediumUrl,
+          large_url: img.largeUrl,
+          public_id: img.publicId,
+          width: img.width,
+          height: img.height,
+          format: img.format,
+          size: img.size,
+          is_primary: index === 0, // First image is primary
+          sort_order: index
+        }))
+
+        const { error: imagesError } = await supabase
+          .from('property_images')
+          .insert(imageInserts)
+
+        if (imagesError) {
+          console.error('Failed to save images:', imagesError)
+        } else {
+          console.log('Images saved to Supabase')
+        }
+      }
+
+      // Save amenities to Supabase
+      if (propertyData.amenities.length > 0) {
+        for (const amenityName of propertyData.amenities) {
+          // First, get or create the amenity
+          let { data: amenity } = await supabase
+            .from('amenities')
+            .select('id')
+            .eq('name', amenityName)
+            .single()
+
+          if (!amenity) {
+            const { data: newAmenity, error } = await supabase
+              .from('amenities')
+              .insert({ name: amenityName })
+              .select('id')
+              .single()
+
+            if (error) {
+              console.error(`Failed to create amenity ${amenityName}:`, error)
+              continue
+            }
+            amenity = newAmenity
+          }
+
+          // Link property to amenity
+          const { error } = await supabase
+            .from('property_amenities')
+            .insert({
+              property_id: savedProperty.id,
+              amenity_id: amenity.id
+            })
+
+          if (error) {
+            console.error(`Failed to link amenity ${amenityName}:`, error)
+          }
+        }
+      }
       
       setIsSubmitting(false)
       setShowSuccess(true)
