@@ -67,6 +67,11 @@ export const uploadImageToCloudinary = async (
     // Validate file
     validateImageFile(file)
 
+    // Validate Cloudinary configuration
+    if (!CLOUDINARY_CONFIG.cloudName || !CLOUDINARY_CONFIG.uploadPreset) {
+      throw new ImageUploadError('Cloudinary configuration is incomplete')
+    }
+
     // Debug logging
     console.log('🔍 Upload Debug Info:', {
       fileName: file.name,
@@ -121,7 +126,7 @@ export const uploadImageToCloudinary = async (
               size: response.bytes
             }
             resolve(uploadedImage)
-          } catch (error) {
+          } catch {
             reject(new ImageUploadError('Failed to parse upload response'))
           }
         } else {
@@ -132,7 +137,7 @@ export const uploadImageToCloudinary = async (
             if (errorResponse.error?.message) {
               errorMessage += ` - ${errorResponse.error.message}`
             }
-          } catch (e) {
+          } catch {
             // If we can't parse the error, use the raw response
             if (xhr.responseText) {
               errorMessage += ` - ${xhr.responseText}`

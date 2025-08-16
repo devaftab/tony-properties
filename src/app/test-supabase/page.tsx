@@ -5,8 +5,22 @@ import { supabase } from '@/lib/supabase'
 
 export default function TestSupabase() {
   const [status, setStatus] = useState('Testing connection...')
-  const [properties, setProperties] = useState<any[]>([])
+  const [properties, setProperties] = useState<Property[]>([])
   const [error, setError] = useState<string | null>(null)
+
+  interface Property {
+    id: string;
+    title: string;
+    location: string;
+    price: string;
+    period: string;
+    description: string;
+    image: string;
+    bedrooms?: number;
+    bathrooms?: number;
+    area?: string;
+    area_unit?: string;
+  }
 
   useEffect(() => {
     testConnection()
@@ -29,8 +43,8 @@ export default function TestSupabase() {
       setProperties(data || [])
       setStatus(`✅ Connected! Found ${data?.length || 0} properties`)
       
-    } catch (err: any) {
-      setError(err.message)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unknown error occurred')
       setStatus('❌ Connection failed')
     }
   }

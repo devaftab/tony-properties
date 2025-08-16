@@ -61,7 +61,7 @@ export default function EditProperty() {
         }
 
         // Get the primary image URL
-        const primaryImage = property.property_images?.find((img: any) => img.is_primary)?.url || 
+        const primaryImage = property.property_images?.find((img: { is_primary: boolean; url: string }) => img.is_primary)?.url || 
                            property.property_images?.[0]?.url || 
                            '/images/property-1.jpg'
 
@@ -183,7 +183,7 @@ export default function EditProperty() {
       setTimeout(() => {
         router.push('/admin/properties')
       }, 2000)
-    } catch (err) {
+    } catch {
       setError('An unexpected error occurred. Please try again.')
     } finally {
       setLoading(false)

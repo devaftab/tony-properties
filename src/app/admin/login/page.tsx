@@ -38,7 +38,7 @@ export default function AdminLogin() {
     }
 
     try {
-      let result: { error: any }
+      let result: { error: Error | null }
 
       if (isSignUp) {
         // For sign up, we can use either email or username
@@ -97,7 +97,7 @@ export default function AdminLogin() {
           }
         }
       }
-    } catch (err) {
+    } catch {
       setError('An unexpected error occurred. Please try again.')
     } finally {
       setLoading(false)

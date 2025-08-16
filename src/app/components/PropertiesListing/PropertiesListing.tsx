@@ -6,12 +6,33 @@ import { IoLocationOutline, IoCameraOutline, IoFilmOutline, IoBedOutline, IoManO
 import styles from './PropertiesListing.module.css'
 import { supabase } from '@/lib/supabase'
 
+interface Property {
+  id: string;
+  title: string;
+  slug: string;
+  location: string;
+  price: string;
+  period: string;
+  description: string;
+  image: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  area?: string;
+  area_unit?: string;
+  property_type?: string;
+  parking?: string;
+  year_built?: string;
+  badge?: string;
+  badgeClass?: string;
+  areaUnit?: string;
+}
+
 const ITEMS_PER_PAGE = 6
 
 export default function PropertiesListing() {
   const [currentPage, setCurrentPage] = useState(1)
   const [selectedFilter, setSelectedFilter] = useState('all')
-  const [properties, setProperties] = useState<any[]>([])
+  const [properties, setProperties] = useState<Property[]>([])
   const [loading, setLoading] = useState(true)
 
   // Filter properties based on selection
@@ -54,7 +75,7 @@ export default function PropertiesListing() {
         .order('created_at', { ascending: false })
 
       if (propertiesError) {
-        console.error('Error fetching properties:', error)
+        console.error('Error fetching properties:', propertiesError)
         return
       }
 
@@ -155,7 +176,7 @@ export default function PropertiesListing() {
                   />
                 </Link>
 
-                <div className={`${styles.cardBadge} ${styles[property.badgeClass]}`}>{property.badge}</div>
+                <div className={`${styles.cardBadge} ${styles[property.badgeClass || 'default']}`}>{property.badge}</div>
 
                 <div className={styles.bannerActions}>
                   <button className={styles.bannerActionsBtn}>

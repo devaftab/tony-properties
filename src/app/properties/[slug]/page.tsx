@@ -6,62 +6,101 @@ import Footer from '../../components/Footer'
 import { IoLocationOutline, IoBedOutline, IoCheckmarkCircleOutline } from 'react-icons/io5'
 import { supabase } from '@/lib/supabase'
 import { useEffect, useState, use } from 'react'
+import { useCallback } from 'react'
 
 interface PropertyPageProps {
-  params: {
-    slug: string
-  }
+  params: Promise<{ slug: string }>
+}
+
+interface Property {
+  id: string;
+  title: string;
+  slug: string;
+  location: string;
+  price: string;
+  period: string;
+  badge: string;
+  badge_class: string;
+  description: string;
+  longDescription?: string;
+  specs?: { icon: string; value: string; label: string }[];
+  amenities?: string[];
+  highlights?: string[];
+  locationInfo?: string[];
+  image: string;
+  images: { url: string; isPrimary: boolean }[];
+  bedrooms?: number;
+  bathrooms?: number;
+  area?: string;
+  area_unit?: string;
+  property_type?: string;
+  parking?: string;
+  year_built?: string;
 }
 
 export default function PropertyPage({ params }: PropertyPageProps) {
   const { slug } = use(params)
-  const [property, setProperty] = useState<any>(null)
+  const [property, setProperty] = useState<Property | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  // Fetch property from Supabase when component mounts
-  useEffect(() => {
-    fetchProperty()
-  }, [slug])
-
-  const fetchProperty = async () => {
+  const fetchProperty = useCallback(async () => {
+    if (!slug) return
+    
     try {
       setLoading(true)
       setError(null)
-
-      // Fetch property from Supabase
-      const { data: properties, error: propertyError } = await supabase
+      
+      // Fetch the property data from Supabase
+      const { data: propertyData, error: fetchError } = await supabase
         .from('properties')
-        .select('*')
+        .select(`
+          *,
+          property_images(url, is_primary)
+        `)
         .eq('slug', slug)
         .single()
 
-      if (propertyError || !properties) {
+      if (fetchError) {
+        console.error('Error fetching property:', fetchError)
         setError('Property not found')
-        setLoading(false)
         return
       }
 
-      // Get property images
-      const { data: images } = await supabase
-        .from('property_images')
-        .select('*')
-        .eq('property_id', properties.id)
-        .order('sort_order', { ascending: true })
-
-      const propertyData = {
-        ...properties,
-        image: images?.[0]?.thumbnail_url || images?.[0]?.url || '/images/property-1.jpg'
+      if (!propertyData) {
+        setError('Property not found')
+        return
       }
 
-      setProperty(propertyData)
-    } catch (err: any) {
-      setError(err.message || 'Failed to load property')
+      // Get the primary image URL
+      const primaryImage = propertyData.property_images?.find((img: { is_primary: boolean; url: string }) => img.is_primary)?.url || 
+                         propertyData.property_images?.[0]?.url || 
+                         '/images/property-1.jpg'
+
+      // Transform the data to match the Property interface
+      const transformedProperty: Property = {
+        ...propertyData,
+        image: primaryImage,
+        images: propertyData.property_images?.map((img: { url: string; is_primary: boolean }) => ({
+          url: img.url,
+          isPrimary: img.is_primary
+        })) || []
+      }
+
+      setProperty(transformedProperty)
+    } catch (err) {
+      console.error('Error in fetchProperty:', err)
+      setError('An unexpected error occurred')
     } finally {
       setLoading(false)
     }
-  }
+  }, [slug])
 
+  useEffect(() => {
+    if (slug) {
+      fetchProperty()
+    }
+  }, [slug, fetchProperty])
 
 
   // Loading state - check this FIRST
@@ -106,9 +145,9 @@ export default function PropertyPage({ params }: PropertyPageProps) {
     description: property.description,
     longDescription: property.description + ' This property offers excellent value and is located in a prime area with great connectivity.',
     specs: [
-      { icon: 'bed-outline', value: property.bedrooms.toString(), label: 'Bedrooms' },
-      { icon: 'man-outline', value: property.bathrooms.toString(), label: 'Bathrooms' },
-      { icon: 'home-outline', value: property.area, label: property.area_unit }
+      { icon: 'bed-outline', value: property.bedrooms?.toString() || '0', label: 'Bedrooms' },
+      { icon: 'man-outline', value: property.bathrooms?.toString() || '0', label: 'Bathrooms' },
+      { icon: 'home-outline', value: property.area || '0', label: property.area_unit || 'Sq. Ft.' }
     ],
     amenities: [
       '24/7 Security', 'Power Backup', 'Water Supply', 'Internet Ready',

@@ -1,16 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { v2 as cloudinary } from 'cloudinary'
+import crypto from 'crypto'
 
-// Cloudinary configuration for server-side operations
-const CLOUDINARY_CONFIG = {
-  cloudName: process.env.CLOUDINARY_CLOUD_NAME || 'tony-properties',
-  apiKey: process.env.CLOUDINARY_API_KEY,
-  apiSecret: process.env.CLOUDINARY_API_SECRET
-}
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+})
 
 export async function POST(request: NextRequest) {
   try {
     // Verify environment variables
-    if (!CLOUDINARY_CONFIG.cloudName || !CLOUDINARY_CONFIG.apiKey || !CLOUDINARY_CONFIG.apiSecret) {
+    if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
       return NextResponse.json(
         { error: 'Cloudinary configuration is incomplete' },
         { status: 500 }
@@ -33,13 +35,13 @@ export async function POST(request: NextRequest) {
     // Prepare deletion request
     const formData = new FormData()
     formData.append('public_id', publicId)
-    formData.append('api_key', CLOUDINARY_CONFIG.apiKey!)
+    formData.append('api_key', process.env.CLOUDINARY_API_KEY!)
     formData.append('timestamp', timestamp.toString())
     formData.append('signature', signature)
 
     // Send deletion request to Cloudinary
     const response = await fetch(
-      `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/image/destroy`,
+      `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/image/destroy`,
       {
         method: 'POST',
         body: formData
@@ -74,8 +76,6 @@ export async function POST(request: NextRequest) {
 
 // Generate HMAC signature for Cloudinary API
 function generateSignature(publicId: string, timestamp: number): string {
-  const crypto = require('crypto')
-  
   const params = {
     public_id: publicId,
     timestamp: timestamp
@@ -89,7 +89,7 @@ function generateSignature(publicId: string, timestamp: number): string {
 
   // Generate HMAC signature
   const signature = crypto
-    .createHmac('sha1', CLOUDINARY_CONFIG.apiSecret!)
+    .createHmac('sha1', process.env.CLOUDINARY_API_SECRET!)
     .update(signatureString)
     .digest('hex')
 

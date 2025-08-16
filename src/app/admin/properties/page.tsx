@@ -108,12 +108,16 @@ export default function AdminProperties() {
 
     // Apply sorting
     filtered.sort((a, b) => {
-      let aValue: string | number = a[sortBy as keyof Property] as string | number
-      let bValue: string | number = b[sortBy as keyof Property] as string | number
+      let aValue = a[sortBy as keyof Property]
+      let bValue = b[sortBy as keyof Property]
 
-      if (sortBy === 'price') {
-        aValue = parseInt(String(aValue).replace(/[^\d]/g, ''))
-        bValue = parseInt(String(bValue).replace(/[^\d]/g, ''))
+      // Handle undefined values
+      if (aValue === undefined) aValue = ''
+      if (bValue === undefined) bValue = ''
+
+      if (typeof aValue === 'string' && typeof bValue === 'string') {
+        aValue = aValue.toLowerCase()
+        bValue = bValue.toLowerCase()
       }
 
       if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1
@@ -122,7 +126,7 @@ export default function AdminProperties() {
     })
 
     return filtered
-  }, [properties, searchTerm, selectedFilter, sortBy, sortOrder, refreshKey])
+  }, [properties, searchTerm, selectedFilter, sortBy, sortOrder])
 
   const handleSort = (field: string) => {
     if (sortBy === field) {
@@ -292,6 +296,10 @@ export default function AdminProperties() {
         verificationSuccessful = true
       }
 
+      if (verificationSuccessful) {
+        deletionSuccessful = true
+      }
+
       if (deletionSuccessful) {
         // Remove from local state
         setProperties(prev => {
@@ -433,7 +441,7 @@ export default function AdminProperties() {
         <div className="modal-overlay">
           <div className="modal-content">
             <h3>Confirm Delete</h3>
-            <p>Are you sure you want to delete "{propertyToDelete.title}"? This action cannot be undone.</p>
+            <p>Are you sure you want to delete &quot;{propertyToDelete.title}&quot;? This action cannot be undone.</p>
             <div className="modal-actions">
               <button 
                 className="btn-secondary" 
