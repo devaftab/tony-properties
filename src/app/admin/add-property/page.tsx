@@ -32,7 +32,7 @@ export default function AddProperty() {
     slug: '',
     amenities: [] as string[],
     propertyType: 'Apartment',
-    parking: 0,
+    parking: '0',
     yearBuilt: new Date().getFullYear()
   })
   
@@ -259,7 +259,7 @@ export default function AddProperty() {
           area: parseFloat(propertyData.area),
           area_unit: propertyData.areaUnit,
           property_type: propertyData.propertyType,
-          parking: propertyData.parking,
+          parking: parseInt(propertyData.parking),
           year_built: propertyData.yearBuilt,
           location: propertyData.location
         })
@@ -551,16 +551,18 @@ export default function AddProperty() {
 
             <div className="form-row">
               <div className="form-group">
-                <label htmlFor="parking">Parking Spaces</label>
-                <input
-                  type="number"
+                <label htmlFor="parking">Parking</label>
+                <select
                   id="parking"
                   name="parking"
                   value={formData.parking}
-                  onChange={handleNumberInputChange}
-                  min="0"
-                  max="10"
-                />
+                  onChange={handleInputChange}
+                >
+                  <option value="0">0 - No</option>
+                  <option value="1">1 - Yes</option>
+                  <option value="2">2 - Street Parking</option>
+                  <option value="3">3 - Garage</option>
+                </select>
               </div>
 
               <div className="form-group">

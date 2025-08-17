@@ -65,10 +65,29 @@ export default function EditProperty() {
                            property.property_images?.[0]?.url || 
                            '/images/property-1.jpg'
 
+        // Convert parking integer back to string for form display
+        let parkingString: string
+        switch (property.parking) {
+          case 1:
+            parkingString = 'Yes'
+            break
+          case 0:
+            parkingString = 'No'
+            break
+          case 2:
+            parkingString = 'Street'
+            break
+          case 3:
+            parkingString = 'Garage'
+            break
+          default:
+            parkingString = 'No'
+        }
+
         setFormData({
           title: property.title || '',
           location: property.location || '',
-          price: property.price || '',
+          price: String(property.price || ''),
           period: property.period || '',
           badge: property.badge || 'For Sale',
           badgeClass: property.period === '/Month' ? 'green' : 'orange',
@@ -76,11 +95,11 @@ export default function EditProperty() {
           description: property.description || '',
           bedrooms: property.bedrooms || 0,
           bathrooms: property.bathrooms || 0,
-          area: property.area || '',
+          area: String(property.area || ''),
           areaUnit: property.area_unit || 'sq ft',
           propertyType: property.property_type || '',
-          parking: property.parking || '',
-          yearBuilt: property.year_built || '',
+          parking: parkingString,
+          yearBuilt: String(property.year_built || ''),
           slug: property.slug || ''
         })
         
@@ -100,9 +119,19 @@ export default function EditProperty() {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
+    
+    // Ensure proper types for different fields
+    let processedValue: string | number
+    if (name === 'bedrooms' || name === 'bathrooms') {
+      processedValue = parseInt(value) || 0
+    } else {
+      // All other fields should be strings
+      processedValue = String(value)
+    }
+    
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'bedrooms' || name === 'bathrooms' ? parseInt(value) || 0 : value
+      [name]: processedValue
     }))
 
     // Auto-generate slug from title
@@ -134,11 +163,62 @@ export default function EditProperty() {
     }
   }
 
+  // Helper function to safely trim string values
+  const safeTrim = (value: any): string => {
+    if (typeof value === 'string') {
+      return value.trim()
+    }
+    if (typeof value === 'number') {
+      return String(value).trim()
+    }
+    return ''
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
     try {
       setLoading(true)
+      setError('') // Clear any previous errors
+      
+      // Debug: Log formData types and values
+      console.log('Form data types:', {
+        title: typeof formData.title,
+        price: typeof formData.price,
+        location: typeof formData.location,
+        slug: typeof formData.slug
+      })
+      console.log('Form data values:', {
+        title: formData.title,
+        price: formData.price,
+        location: formData.location,
+        slug: formData.slug
+      })
+      
+      // Validate required fields
+      if (!safeTrim(formData.title)) {
+        setError('Property title is required')
+        setLoading(false)
+        return
+      }
+      
+      if (!safeTrim(formData.slug)) {
+        setError('Property slug is required')
+        setLoading(false)
+        return
+      }
+      
+      if (!safeTrim(formData.location)) {
+        setError('Property location is required')
+        setLoading(false)
+        return
+      }
+      
+      if (!safeTrim(formData.price)) {
+        setError('Property price is required')
+        setLoading(false)
+        return
+      }
       
       // Check if user is authenticated
       const { data: { user } } = await supabase.auth.getUser()
@@ -146,6 +226,25 @@ export default function EditProperty() {
       if (!user) {
         setError('You must be logged in to update properties')
         return
+      }
+      
+      // Convert parking string to integer based on the database schema
+      let parkingValue: number
+      switch (formData.parking) {
+        case 'Yes':
+          parkingValue = 1
+          break
+        case 'No':
+          parkingValue = 0
+          break
+        case 'Street':
+          parkingValue = 2
+          break
+        case 'Garage':
+          parkingValue = 3
+          break
+        default:
+          parkingValue = 0 // Default to No
       }
       
       // Update the property in Supabase
@@ -159,13 +258,16 @@ export default function EditProperty() {
         description: formData.description,
         bedrooms: formData.bedrooms,
         bathrooms: formData.bathrooms,
-        area: formData.area,
+        area: parseFloat(formData.area) || 0,
         area_unit: formData.areaUnit,
         property_type: formData.propertyType,
-        parking: formData.parking,
-        year_built: formData.yearBuilt,
+        parking: parkingValue,
+        year_built: parseInt(formData.yearBuilt) || 0,
         updated_at: new Date().toISOString()
       }
+      
+      console.log('Updating property with data:', updateData)
+      console.log('Property ID:', propertyId)
       
       const { error: updateError } = await supabase
         .from('properties')
@@ -173,7 +275,28 @@ export default function EditProperty() {
         .eq('id', propertyId)
 
       if (updateError) {
-        setError('Failed to update property. Please try again.')
+        console.error('Supabase update error:', updateError)
+        console.error('Error details:', {
+          code: updateError.code,
+          message: updateError.message,
+          details: updateError.details,
+          hint: updateError.hint
+        })
+        
+        // Handle specific error types
+        if (updateError.code === '23514') {
+          setError('Validation error: One or more required fields are missing or invalid')
+        } else if (updateError.code === '23505') {
+          setError('Duplicate error: A property with this slug already exists')
+        } else if (updateError.code === '23503') {
+          setError('Reference error: Invalid reference to another table')
+        } else if (updateError.code === '42P01') {
+          setError('Table not found: The properties table does not exist')
+        } else if (updateError.code === '42501') {
+          setError('Permission denied: You do not have permission to update properties')
+        } else {
+          setError(`Failed to update property: ${updateError.message || updateError.details || 'Unknown error'}`)
+        }
         return
       }
       
@@ -183,8 +306,9 @@ export default function EditProperty() {
       setTimeout(() => {
         router.push('/admin/properties')
       }, 2000)
-    } catch {
-      setError('An unexpected error occurred. Please try again.')
+    } catch (err) {
+      console.error('Unexpected error:', err)
+      setError(`An unexpected error occurred: ${err instanceof Error ? err.message : 'Unknown error'}`)
     } finally {
       setLoading(false)
     }
@@ -361,10 +485,10 @@ export default function EditProperty() {
                   onChange={handleInputChange}
                 >
                   <option value="">Select Parking</option>
-                  <option value="Yes">Yes</option>
-                  <option value="No">No</option>
-                  <option value="Street">Street Parking</option>
-                  <option value="Garage">Garage</option>
+                  <option value="Yes">1 - Yes</option>
+                  <option value="No">0 - No</option>
+                  <option value="Street">2 - Street Parking</option>
+                  <option value="Garage">3 - Garage</option>
                 </select>
               </div>
             </div>
@@ -463,7 +587,7 @@ export default function EditProperty() {
         <div className="form-section full-width">
           <h3>Property Image</h3>
           <div className="form-group">
-            <div className="image-upload-area" onClick={() => document.getElementById('image-upload')?.click()}>
+            <div className="image-upload-area">
               <input
                 type="file"
                 id="image-upload"

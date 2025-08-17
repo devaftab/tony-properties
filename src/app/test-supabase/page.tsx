@@ -1,107 +1,108 @@
 'use client'
-
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { supabase } from '@/lib/supabase'
 
 export default function TestSupabase() {
-  const [status, setStatus] = useState('Testing connection...')
-  const [properties, setProperties] = useState<Property[]>([])
-  const [error, setError] = useState<string | null>(null)
+  const [message, setMessage] = useState('')
+  const [loading, setLoading] = useState(false)
 
-  interface Property {
-    id: string;
-    title: string;
-    location: string;
-    price: string;
-    period: string;
-    description: string;
-    image: string;
-    bedrooms?: number;
-    bathrooms?: number;
-    area?: string;
-    area_unit?: string;
-  }
-
-  useEffect(() => {
-    testConnection()
-  }, [])
-
-  async function testConnection() {
+  const testConnection = async () => {
+    setLoading(true)
     try {
-      setStatus('Testing Supabase connection...')
-      
-      // Test basic connection
       const { data, error } = await supabase
         .from('properties')
-        .select('*')
-        .order('created_at', { ascending: false })
-
-      if (error) {
-        throw error
-      }
-
-      setProperties(data || [])
-      setStatus(`✅ Connected! Found ${data?.length || 0} properties`)
+        .select('id, title, parking')
+        .limit(1)
       
+      if (error) {
+        setMessage(`Connection error: ${error.message}`)
+      } else {
+        setMessage(`Connection successful! Found ${data?.length || 0} properties. First property parking: ${data?.[0]?.parking}`)
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unknown error occurred')
-      setStatus('❌ Connection failed')
+      setMessage(`Unexpected error: ${err}`)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const testParkingUpdate = async () => {
+    setLoading(true)
+    try {
+      // Get the first property
+      const { data: properties, error: fetchError } = await supabase
+        .from('properties')
+        .select('id, parking')
+        .limit(1)
+      
+      if (fetchError) {
+        setMessage(`Fetch error: ${fetchError.message}`)
+        return
+      }
+      
+      if (!properties || properties.length === 0) {
+        setMessage('No properties found to test with')
+        return
+      }
+      
+      const propertyId = properties[0].id
+      const currentParking = properties[0].parking
+      
+      // Try to update parking to a different value
+      const newParkingValue = currentParking === 1 ? 2 : 1
+      
+      const { error: updateError } = await supabase
+        .from('properties')
+        .update({ parking: newParkingValue })
+        .eq('id', propertyId)
+      
+      if (updateError) {
+        setMessage(`Parking update error: ${updateError.message} (Code: ${updateError.code})`)
+      } else {
+        setMessage(`Parking update successful! Changed from ${currentParking} to ${newParkingValue}`)
+      }
+    } catch (err) {
+      setMessage(`Unexpected error: ${err}`)
+    } finally {
+      setLoading(false)
     }
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
-      <div className="max-w-4xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-800 mb-8">
-          🧪 Supabase Connection Test
-        </h1>
-
-        <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-          <h2 className="text-xl font-semibold mb-4">Connection Status</h2>
-          <p className="text-gray-700">{status}</p>
-          
-          {error && (
-            <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-md">
-              <p className="text-red-800 font-medium">Error:</p>
-              <p className="text-red-700">{error}</p>
-            </div>
-          )}
-        </div>
-
-        {properties.length > 0 && (
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <h2 className="text-xl font-semibold mb-4">
-              Properties from Database ({properties.length})
-            </h2>
-            <div className="space-y-3">
-              {properties.map((property) => (
-                <div key={property.id} className="p-3 bg-gray-50 rounded-md">
-                  <h3 className="font-medium">{property.title}</h3>
-                  <p className="text-sm text-gray-600">
-                    {property.location} • {property.bedrooms} bed • {property.bathrooms} bath
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    ₹{property.price.toLocaleString()}{property.period}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mt-6">
-          <h3 className="text-lg font-semibold text-blue-800 mb-2">
-            🔧 Next Steps:
-          </h3>
-          <ol className="list-decimal list-inside space-y-2 text-blue-700">
-            <li>Verify connection is working ✅</li>
-            <li>Check Supabase dashboard for data</li>
-            <li>Update admin panel to use database</li>
-            <li>Test CRUD operations</li>
-            <li>Add real-time features</li>
-          </ol>
-        </div>
+    <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto' }}>
+      <h1>Supabase Connection Test</h1>
+      
+      <div style={{ marginBottom: '20px' }}>
+        <button 
+          onClick={testConnection}
+          disabled={loading}
+          style={{ marginRight: '10px', padding: '10px 20px' }}
+        >
+          Test Connection
+        </button>
+        
+        <button 
+          onClick={testParkingUpdate}
+          disabled={loading}
+          style={{ padding: '10px 20px' }}
+        >
+          Test Parking Update
+        </button>
       </div>
+      
+      {loading && <p>Loading...</p>}
+      
+      {message && (
+        <div style={{ 
+          padding: '15px', 
+          backgroundColor: message.includes('error') ? '#ffebee' : '#e8f5e8',
+          border: `1px solid ${message.includes('error') ? '#f44336' : '#4caf50'}`,
+          borderRadius: '4px',
+          marginTop: '20px'
+        }}>
+          <pre style={{ whiteSpace: 'pre-wrap', margin: 0 }}>{message}</pre>
+        </div>
+      )}
     </div>
   )
 }
