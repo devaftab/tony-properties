@@ -75,7 +75,8 @@ export default function PropertyPage({ params }: PropertyPageProps) {
       }
 
       // Fetch amenities for this property
-      const { data: amenitiesData } = await supabase
+      console.log('Fetching amenities for property ID:', propertyData.id)
+      const { data: amenitiesData, error: amenitiesError } = await supabase
         .from('property_amenities')
         .select(`
           amenity_id,
@@ -83,7 +84,10 @@ export default function PropertyPage({ params }: PropertyPageProps) {
         `)
         .eq('property_id', propertyData.id)
 
-      // Amenities error is handled gracefully - properties can still display without amenities
+      console.log('Amenities data fetched:', amenitiesData)
+      console.log('Amenities error:', amenitiesError)
+      console.log('First amenity item structure:', amenitiesData?.[0])
+      console.log('First amenity amenities field:', amenitiesData?.[0]?.amenities)
 
       // Get the primary image URL
       const primaryImage = propertyData.property_images?.find((img: { is_primary: boolean; url: string }) => img.is_primary)?.url || 
@@ -91,7 +95,17 @@ export default function PropertyPage({ params }: PropertyPageProps) {
                          '/images/property-1.jpg'
 
       // Extract amenities from the joined data
-      const propertyAmenities = amenitiesData?.map((item: { amenities: { name: string }[] }) => item.amenities[0]?.name).filter(Boolean) || []
+      const propertyAmenities = amenitiesData?.map((item: { amenities: { name: string }[] | { name: string } }) => {
+        console.log('Processing item:', item)
+        console.log('Item amenities field:', item.amenities)
+        if (item.amenities && Array.isArray(item.amenities)) {
+          return item.amenities[0]?.name
+        } else if (item.amenities && typeof item.amenities === 'object') {
+          return (item.amenities as { name: string }).name
+        }
+        return null
+      }).filter((name): name is string => name !== null) || []
+      console.log('Extracted amenities:', propertyAmenities)
 
       // Transform the data to match the Property interface
       const transformedProperty: Property = {
@@ -518,6 +532,28 @@ export default function PropertyPage({ params }: PropertyPageProps) {
           </div>
         </section>
 
+        {/* Amenities Section */}
+        <section className="property-amenities">
+          <div className="container">
+            <h3 className="h3">Amenities</h3>
+            {property.amenities && property.amenities.length > 0 ? (
+              <ul className="amenities-list">
+                {property.amenities.map((amenity, index) => (
+                  <li key={index}>
+                    <IoCheckmarkCircleOutline /> {amenity}
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="no-amenities">
+                <p>No specific amenities listed for this property.</p>
+                <p className="amenities-note">
+                  Contact us for detailed information about available amenities and features.
+                </p>
+              </div>
+            )}
+          </div>
+        </section>
 
         <section className="similar-properties">
           <div className="container">

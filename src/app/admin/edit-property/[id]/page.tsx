@@ -71,6 +71,8 @@ export default function EditProperty() {
   const router = useRouter()
   const params = useParams()
   const propertyId = parseInt(params.id as string)
+  console.log('URL params:', params)
+  console.log('Parsed property ID:', propertyId)
   
   const [formData, setFormData] = useState<FormData>({
     title: '',
@@ -92,10 +94,12 @@ export default function EditProperty() {
   })
   
   const [images, setImages] = useState<PropertyImage[]>([])
-  const [property, setProperty] = useState<PropertyData | null>(null)
   const [showSuccess, setShowSuccess] = useState(false)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [amenities, setAmenities] = useState<string[]>([])
+  const [availableAmenities, setAvailableAmenities] = useState<string[]>([])
+  const [newAmenity, setNewAmenity] = useState('')
 
   useEffect(() => {
     const fetchProperty = async () => {
@@ -103,6 +107,7 @@ export default function EditProperty() {
         setLoading(true)
         
         // Fetch the property data from Supabase
+        console.log('Fetching property with ID:', propertyId)
         const { data: propertyData, error: fetchError } = await supabase
           .from('properties')
           .select(`
@@ -111,6 +116,9 @@ export default function EditProperty() {
           `)
           .eq('id', propertyId)
           .single()
+        
+        console.log('Property data fetched:', propertyData)
+        console.log('Fetch error:', fetchError)
 
         if (fetchError) {
           console.error('Error fetching property:', fetchError)
@@ -118,7 +126,7 @@ export default function EditProperty() {
           return
         }
 
-        if (!property) {
+        if (!propertyData) {
           setError('Property not found')
           return
         }
@@ -144,16 +152,7 @@ export default function EditProperty() {
           }
         })()
 
-        // Transform the data to match the Property interface
-        const transformedProperty: PropertyData = {
-          ...propertyData,
-          images: propertyData.property_images?.map((img: { url: string; is_primary: boolean; public_id?: string }) => ({
-            url: img.url,
-            isPrimary: img.is_primary
-          })) || []
-        }
 
-        setProperty(transformedProperty)
         
         // Set form data
         setFormData({
@@ -176,14 +175,51 @@ export default function EditProperty() {
         })
 
         // Set existing images
-        if (property.property_images && property.property_images.length > 0) {
-          const existingImages: PropertyImage[] = property.property_images.map((img: { url: string; is_primary: boolean; public_id?: string }, index: number) => ({
+        if (propertyData.property_images && propertyData.property_images.length > 0) {
+          const existingImages: PropertyImage[] = propertyData.property_images.map((img: { url: string; is_primary: boolean; public_id?: string }, index: number) => ({
             id: `existing-${index}`,
             url: img.url,
             is_primary: img.is_primary,
             public_id: img.public_id
           }))
           setImages(existingImages)
+        }
+
+        // Fetch amenities for this property
+        console.log('Fetching amenities for edit form, property ID:', propertyId)
+        const { data: amenitiesData, error: amenitiesError } = await supabase
+          .from('property_amenities')
+          .select(`
+            amenity_id,
+            amenities(name)
+          `)
+          .eq('property_id', propertyId)
+
+        console.log('Edit form amenities data:', amenitiesData)
+        console.log('Edit form amenities error:', amenitiesError)
+
+        if (amenitiesData) {
+          const propertyAmenities = amenitiesData.map((item: { amenities: { name: string }[] | { name: string } }) => {
+            console.log('Processing amenity item:', item)
+            if (item.amenities && Array.isArray(item.amenities)) {
+              return item.amenities[0]?.name
+            } else if (item.amenities && typeof item.amenities === 'object') {
+              return (item.amenities as { name: string }).name
+            }
+            return null
+          }).filter((name): name is string => name !== null)
+          console.log('Edit form extracted amenities:', propertyAmenities)
+          setAmenities(propertyAmenities)
+        }
+
+        // Fetch all available amenities for selection
+        const { data: allAmenities } = await supabase
+          .from('amenities')
+          .select('name')
+          .order('name')
+
+        if (allAmenities) {
+          setAvailableAmenities(allAmenities.map(a => a.name))
         }
       } catch (err) {
         console.error('Error in fetchProperty:', err)
@@ -266,6 +302,18 @@ export default function EditProperty() {
       is_primary: img.id === imageId
     })))
   }
+
+  const addAmenity = (amenityName: string) => {
+    if (amenityName.trim() && !amenities.includes(amenityName.trim())) {
+      setAmenities(prev => [...prev, amenityName.trim()])
+    }
+  }
+
+  const removeAmenity = (amenityName: string) => {
+    setAmenities(prev => prev.filter(a => a !== amenityName))
+  }
+
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -374,9 +422,10 @@ export default function EditProperty() {
         title: formData.title,
         slug: formData.slug,
         location: formData.location,
-        price: formData.price,
+        price: parseFloat(formData.price.replace(/[^\d.]/g, '')) || 0, // Convert price string to number, remove currency symbols
         period: formData.period,
         badge: formData.badge,
+        badge_class: formData.badgeClass,
         description: formData.description,
         bedrooms: formData.bedrooms,
         bathrooms: formData.bathrooms,
@@ -384,11 +433,11 @@ export default function EditProperty() {
         area_unit: formData.areaUnit,
         property_type: formData.propertyType,
         parking: parkingValue,
-        year_built: parseInt(formData.yearBuilt) || 0,
-        updated_at: new Date().toISOString()
+        year_built: parseInt(formData.yearBuilt) || 0
       }
       
       // Update property in database
+      console.log('Updating property with data:', updateData)
       
       const { error: updateError } = await supabase
         .from('properties')
@@ -396,9 +445,16 @@ export default function EditProperty() {
         .eq('id', propertyId)
 
       if (updateError) {
-        // Handle specific error types with user-friendly messages
+        // Log the error for debugging
+        console.error('Supabase update error:', updateError)
+        console.error('Error details:', {
+          code: updateError.code,
+          message: updateError.message,
+          details: updateError.details,
+          hint: updateError.hint
+        })
         
-        // Handle specific error types
+        // Handle specific error types with user-friendly messages
         if (updateError.code === '23514') {
           setError('Validation error: One or more required fields are missing or invalid')
         } else if (updateError.code === '23505') {
@@ -452,6 +508,72 @@ export default function EditProperty() {
           console.error('Error saving images:', imagesError)
           // Continue anyway, as the property was updated successfully
         }
+      }
+
+      // Handle amenities updates
+      console.log('Saving amenities:', amenities)
+      
+      // Always delete existing amenities first (whether adding new ones or clearing all)
+      const { error: deleteAmenitiesError } = await supabase
+        .from('property_amenities')
+        .delete()
+        .eq('property_id', propertyId)
+
+      if (deleteAmenitiesError) {
+        console.error('Error deleting existing amenities:', deleteAmenitiesError)
+        // Continue anyway, as the property was updated successfully
+      } else {
+        console.log('Successfully deleted existing amenities')
+      }
+
+      // Insert new amenities if any exist
+      if (amenities.length > 0) {
+        console.log('Inserting new amenities:', amenities)
+        
+        for (const amenityName of amenities) {
+          console.log('Processing amenity:', amenityName)
+          
+          // First, get or create the amenity
+          let { data: amenity } = await supabase
+            .from('amenities')
+            .select('id')
+            .eq('name', amenityName)
+            .single()
+
+          if (!amenity) {
+            console.log('Creating new amenity:', amenityName)
+            const { data: newAmenity, error: amenityError } = await supabase
+              .from('amenities')
+              .insert({ name: amenityName })
+              .select('id')
+              .single()
+
+            if (amenityError) {
+              console.error('Error creating amenity:', amenityError)
+              continue
+            }
+            amenity = newAmenity
+            console.log('Created amenity with ID:', amenity.id)
+          } else {
+            console.log('Found existing amenity:', amenity.id)
+          }
+
+          // Link property to amenity
+          const { error: linkError } = await supabase
+            .from('property_amenities')
+            .insert({
+              property_id: propertyId,
+              amenity_id: amenity.id
+            })
+
+          if (linkError) {
+            console.error('Error linking amenity:', linkError)
+          } else {
+            console.log('Successfully linked amenity:', amenityName)
+          }
+        }
+      } else {
+        console.log('No amenities to save - property will have no amenities')
       }
       
       setShowSuccess(true)
@@ -717,6 +839,87 @@ export default function EditProperty() {
                 </select>
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* Amenities Section */}
+        <div className="form-section full-width">
+          <h3>Amenities</h3>
+          <div className="form-group">
+            <label>Property Amenities</label>
+            <p className="form-help">Add or remove amenities for this property</p>
+            
+            {/* Current Amenities */}
+            {amenities.length > 0 && (
+              <div className="current-amenities">
+                <h4>Current Amenities ({amenities.length})</h4>
+                <div className="amenities-list">
+                  {amenities.map((amenity, index) => (
+                    <div key={index} className="amenity-tag">
+                      <span>{amenity}</span>
+                      <button
+                        type="button"
+                        className="remove-amenity-btn"
+                        onClick={() => removeAmenity(amenity)}
+                        title="Remove amenity"
+                      >
+                        <IoCloseOutline />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Add New Amenity */}
+            <div className="add-amenity-section">
+              <h4>Add New Amenity</h4>
+              <div className="add-amenity-form">
+                <div className="input-group">
+                  <input
+                    type="text"
+                    value={newAmenity}
+                    onChange={(e) => setNewAmenity(e.target.value)}
+                    placeholder="Enter amenity name (e.g., Swimming Pool, Gym)"
+                    className="amenity-input"
+                    onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addAmenity(newAmenity.trim()), setNewAmenity(''))}
+                  />
+                  <button 
+                    type="button" 
+                    className="btn-secondary"
+                    onClick={() => {
+                      if (newAmenity.trim()) {
+                        addAmenity(newAmenity.trim())
+                        setNewAmenity('')
+                      }
+                    }}
+                  >
+                    Add
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Available Amenities */}
+            {availableAmenities.length > 0 && (
+              <div className="available-amenities">
+                <h4>Quick Add from Available</h4>
+                <div className="amenities-grid">
+                  {availableAmenities
+                    .filter(amenity => !amenities.includes(amenity))
+                    .map((amenity, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        className="amenity-chip"
+                        onClick={() => addAmenity(amenity)}
+                      >
+                        {amenity}
+                      </button>
+                    ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
