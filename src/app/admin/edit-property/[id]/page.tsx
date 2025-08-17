@@ -1,9 +1,21 @@
 'use client'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import Image from 'next/image'
-import { IoCloudUploadOutline, IoCheckmarkCircleOutline, IoArrowBackOutline } from 'react-icons/io5'
+import { IoCloudUploadOutline, IoCheckmarkCircleOutline, IoArrowBackOutline, IoCloseOutline } from 'react-icons/io5'
 import { supabase } from '@/lib/supabase'
+import { uploadImageToCloudinary, ImageUploadError } from '@/lib/imageUpload'
+
+interface PropertyImage {
+  id: string
+  url: string
+  file?: File
+  isUploading?: boolean
+  uploadProgress?: number
+  cloudinaryData?: any
+  is_primary?: boolean
+  public_id?: string
+}
 
 interface FormData {
   title: string
@@ -43,6 +55,7 @@ interface PropertyData {
   property_images?: Array<{
     url: string
     is_primary: boolean
+    public_id?: string
   }>
 }
 
@@ -70,6 +83,8 @@ export default function EditProperty() {
     slug: ''
   })
   
+  const [images, setImages] = useState<PropertyImage[]>([])
+  const [property, setProperty] = useState<PropertyData | null>(null)
   const [showSuccess, setShowSuccess] = useState(false)
   const [imagePreview, setImagePreview] = useState('')
   const [loading, setLoading] = useState(true)
@@ -85,7 +100,7 @@ export default function EditProperty() {
           .from('properties')
           .select(`
             *,
-            property_images(url, is_primary)
+            property_images(url, is_primary, public_id)
           `)
           .eq('id', propertyId)
           .single()
@@ -127,26 +142,49 @@ export default function EditProperty() {
             parkingString = 'No'
         }
 
-        setFormData({
-          title: propertyData.title || '',
-          location: propertyData.location || '',
-          price: String(propertyData.price || ''),
-          period: propertyData.period || '',
-          badge: propertyData.badge || 'For Sale',
-          badgeClass: propertyData.period === '/Month' ? 'green' : 'orange',
+        // Transform the data to match the Property interface
+        const transformedProperty: PropertyData = {
+          ...property,
           image: primaryImage,
-          description: propertyData.description || '',
-          bedrooms: propertyData.bedrooms || 0,
-          bathrooms: propertyData.bathrooms || 0,
-          area: String(propertyData.area || ''),
-          areaUnit: propertyData.area_unit || 'sq ft',
-          propertyType: propertyData.property_type || '',
-          parking: parkingString,
-          yearBuilt: String(propertyData.year_built || ''),
-          slug: propertyData.slug || ''
-        })
+          images: propertyData.property_images?.map((img: { url: string; is_primary: boolean; public_id?: string }) => ({
+            url: img.url,
+            isPrimary: img.is_primary
+          })) || []
+        }
+
+        setProperty(transformedProperty)
         
-        setImagePreview(primaryImage)
+        // Set form data
+        setFormData({
+          title: property.title || '',
+          location: property.location || '',
+          price: String(property.price || ''),
+          period: property.period || '',
+          badge: property.badge || '',
+          badgeClass: property.badge_class || 'green',
+          image: primaryImage,
+          description: property.description || '',
+          bedrooms: property.bedrooms || 0,
+          bathrooms: property.bathrooms || 0,
+          area: String(property.area || ''),
+          areaUnit: property.area_unit || 'sq ft',
+          propertyType: property.property_type || '',
+          parking: property.parking === 1 ? 'Yes' : property.parking === 2 ? 'Street' : property.parking === 3 ? 'Garage' : 'No',
+          yearBuilt: String(property.year_built || ''),
+          slug: property.slug || ''
+        })
+
+        // Set existing images
+        if (property.property_images && property.property_images.length > 0) {
+          const existingImages: PropertyImage[] = property.property_images.map((img: { url: string; is_primary: boolean; public_id?: string }, index: number) => ({
+            id: `existing-${index}`,
+            url: img.url,
+            is_primary: img.is_primary,
+            public_id: img.public_id
+          }))
+          setImages(existingImages)
+          setImagePreview(primaryImage)
+        }
       } catch (err) {
         console.error('Error in fetchProperty:', err)
         setError('An unexpected error occurred')
@@ -155,10 +193,79 @@ export default function EditProperty() {
       }
     }
 
-    if (propertyId) {
-      fetchProperty()
-    }
+    fetchProperty()
   }, [propertyId])
+
+  const handleImageUpload = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || [])
+    
+    for (const file of files) {
+      const imageId = Math.random().toString(36).substr(2, 9)
+      
+      try {
+        const newImage: PropertyImage = {
+          id: imageId,
+          url: URL.createObjectURL(file),
+          file: file,
+          isUploading: true,
+          uploadProgress: 0
+        }
+        
+        setImages(prev => [...prev, newImage])
+
+        // Upload to Cloudinary
+        const cloudinaryResult = await uploadImageToCloudinary(file, (progress) => {
+          setImages(prev => prev.map(img => 
+            img.id === imageId 
+              ? { ...img, uploadProgress: progress.percentage }
+              : img
+          ))
+        })
+
+        // Update image with Cloudinary data
+        setImages(prev => prev.map(img => 
+          img.id === imageId 
+            ? { 
+                ...img, 
+                isUploading: false, 
+                uploadProgress: 100,
+                cloudinaryData: cloudinaryResult,
+                url: cloudinaryResult.url // Use Cloudinary URL instead of blob
+              }
+            : img
+        ))
+
+      } catch (error) {
+        console.error('Image upload failed:', error)
+        
+        // Remove failed image and show error
+        setImages(prev => prev.filter(img => img.id !== imageId))
+        
+        if (error instanceof ImageUploadError) {
+          alert(`Failed to upload ${file.name}: ${error.message}`)
+        } else {
+          alert(`Failed to upload ${file.name}. Please try again.`)
+        }
+      }
+    }
+  }, [])
+
+  const removeImage = (imageId: string) => {
+    setImages(prev => {
+      const image = prev.find(img => img.id === imageId)
+      if (image?.url.startsWith('blob:')) {
+        URL.revokeObjectURL(image.url)
+      }
+      return prev.filter(img => img.id !== imageId)
+    })
+  }
+
+  const setPrimaryImage = (imageId: string) => {
+    setImages(prev => prev.map(img => ({
+      ...img,
+      is_primary: img.id === imageId
+    })))
+  }
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target
@@ -190,19 +297,6 @@ export default function EditProperty() {
         ...prev,
         slug: slug
       }))
-    }
-  }
-
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onload = (e) => {
-        const result = e.target?.result as string
-        setImagePreview(result)
-        setFormData(prev => ({ ...prev, image: result }))
-      }
-      reader.readAsDataURL(file)
     }
   }
 
@@ -338,6 +432,45 @@ export default function EditProperty() {
           setError(`Failed to update property: ${updateError.message || updateError.details || 'Unknown error'}`)
         }
         return
+      }
+
+      // Handle image updates
+      if (images.length > 0) {
+        // First, delete existing images for this property
+        const { error: deleteError } = await supabase
+          .from('property_images')
+          .delete()
+          .eq('property_id', propertyId)
+
+        if (deleteError) {
+          console.error('Error deleting existing images:', deleteError)
+          // Continue anyway, as the property was updated successfully
+        }
+
+        // Insert new images
+        const imageInserts = images.map((img, index) => ({
+          property_id: propertyId,
+          url: img.url,
+          thumbnail_url: img.cloudinaryData?.thumbnailUrl || img.url,
+          medium_url: img.cloudinaryData?.mediumUrl || img.url,
+          large_url: img.cloudinaryData?.largeUrl || img.url,
+          public_id: img.cloudinaryData?.publicId || img.public_id,
+          width: img.cloudinaryData?.width || 800,
+          height: img.cloudinaryData?.height || 600,
+          format: img.cloudinaryData?.format || 'jpg',
+          size: img.cloudinaryData?.size || 0,
+          is_primary: img.is_primary || index === 0, // First image is primary if none specified
+          sort_order: index
+        }))
+
+        const { error: imagesError } = await supabase
+          .from('property_images')
+          .insert(imageInserts)
+
+        if (imagesError) {
+          console.error('Error saving images:', imagesError)
+          // Continue anyway, as the property was updated successfully
+        }
       }
       
       setShowSuccess(true)
@@ -625,7 +758,7 @@ export default function EditProperty() {
 
         {/* Image Upload */}
         <div className="form-section full-width">
-          <h3>Property Image</h3>
+          <h3>Property Images</h3>
           <div className="form-group">
             <div className="image-upload-area">
               <input
@@ -633,26 +766,86 @@ export default function EditProperty() {
                 id="image-upload"
                 className="file-input"
                 accept="image/*"
+                multiple
                 onChange={handleImageUpload}
               />
-              {imagePreview ? (
-                <div className="image-preview">
-                  <Image 
-                    src={imagePreview} 
-                    alt="Property preview" 
-                    width={200}
-                    height={150}
-                  />
-                </div>
-              ) : (
-                <div className="upload-placeholder">
-                  <IoCloudUploadOutline />
-                  <p>Click to upload image</p>
-                  <span>or drag and drop</span>
-                </div>
-              )}
+              <div className="upload-placeholder">
+                <IoCloudUploadOutline />
+                <p>Click to upload images</p>
+                <span>or drag and drop multiple images</span>
+              </div>
             </div>
           </div>
+
+          {/* Image Gallery */}
+          {images.length > 0 && (
+            <div className="image-gallery">
+              <h4>Current Images ({images.length})</h4>
+              <div className="image-grid">
+                {images.map((image, index) => (
+                  <div key={image.id} className="image-item">
+                    <div className="image-container">
+                      <Image 
+                        src={image.url} 
+                        alt={`Property image ${index + 1}`} 
+                        width={200}
+                        height={150}
+                        className="property-image"
+                      />
+                      
+                      {/* Upload Progress */}
+                      {image.isUploading && (
+                        <div className="upload-progress">
+                          <div className="progress-bar">
+                            <div 
+                              className="progress-fill" 
+                              style={{ width: `${image.uploadProgress || 0}%` }}
+                            ></div>
+                          </div>
+                          <span>{image.uploadProgress || 0}%</span>
+                        </div>
+                      )}
+                      
+                      {/* Primary Image Badge */}
+                      {image.is_primary && (
+                        <div className="primary-badge">Primary</div>
+                      )}
+                      
+                      {/* Remove Button */}
+                      <button
+                        type="button"
+                        className="remove-image-btn"
+                        onClick={() => removeImage(image.id)}
+                        title="Remove image"
+                      >
+                        <IoCloseOutline />
+                      </button>
+                    </div>
+                    
+                    <div className="image-actions">
+                      <button
+                        type="button"
+                        className={`btn-secondary ${image.is_primary ? 'active' : ''}`}
+                        onClick={() => setPrimaryImage(image.id)}
+                        disabled={image.isUploading}
+                      >
+                        {image.is_primary ? 'Primary' : 'Set Primary'}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="image-info">
+                <p>
+                  <strong>Primary Image:</strong> The first image shown in property listings
+                </p>
+                <p>
+                  <strong>Image Order:</strong> Images are displayed in the order they appear above
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Form Actions */}

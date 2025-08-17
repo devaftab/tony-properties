@@ -700,46 +700,6 @@
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.image-upload-area {
-  border: 2px dashed #d1d5db;
-  border-radius: 0.5rem;
-  padding: 2rem;
-  text-align: center;
-  transition: border-color 0.2s ease;
-  cursor: pointer;
-  position: relative;
-}
-
-.image-upload-area:hover {
-  border-color: #3b82f6;
-}
-
-.file-input {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  cursor: pointer;
-}
-
-.upload-placeholder {
-  color: #6b7280;
-}
-
-.upload-placeholder svg {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-  color: #9ca3af;
-}
-
-.upload-placeholder p {
-  margin: 0 0 0.5rem 0;
-  font-weight: 500;
-}
-
-.upload-placeholder span {
-  font-size: 0.875rem;
-}
-
 /* Enhanced Image Management */
 .images-preview {
   margin-top: 1.5rem;
@@ -1884,5 +1844,243 @@
   
   .trend-month {
     font-size: 0.625rem;
+  }
+}
+
+/* Image Upload Styles */
+.image-upload-area {
+  position: relative;
+  border: 2px dashed #d1d5db;
+  border-radius: 0.75rem;
+  padding: 2rem;
+  text-align: center;
+  background: #f9fafb;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.image-upload-area:hover {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.file-input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.upload-placeholder {
+  pointer-events: none;
+}
+
+.upload-placeholder svg {
+  font-size: 3rem;
+  color: #9ca3af;
+  margin-bottom: 1rem;
+}
+
+.upload-placeholder p {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.upload-placeholder span {
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+/* Image Gallery Styles */
+.image-gallery {
+  margin-top: 2rem;
+}
+
+.image-gallery h4 {
+  color: #1e293b;
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.image-item {
+  background: white;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.image-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.image-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.property-image {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.image-item:hover .property-image {
+  transform: scale(1.05);
+}
+
+/* Upload Progress */
+.upload-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 0.5rem;
+  text-align: center;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 0.25rem;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #10b981;
+  transition: width 0.3s ease;
+}
+
+.upload-progress span {
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+/* Primary Badge */
+.primary-badge {
+  position: absolute;
+  top: 0.5rem;
+  left: 0.5rem;
+  background: #f59e0b;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+/* Remove Button */
+.remove-image-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: #ef4444;
+  color: white;
+  border: none;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 1.125rem;
+}
+
+.remove-image-btn:hover {
+  background: #dc2626;
+  transform: scale(1.1);
+}
+
+/* Image Actions */
+.image-actions {
+  padding: 1rem;
+  background: #f8fafc;
+  border-top: 1px solid #e5e7eb;
+}
+
+.image-actions .btn-secondary {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.image-actions .btn-secondary.active {
+  background: #10b981;
+  color: white;
+  border-color: #10b981;
+}
+
+.image-actions .btn-secondary:hover:not(.active) {
+  background: #e5e7eb;
+  border-color: #d1d5db;
+}
+
+/* Image Info */
+.image-info {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.image-info p {
+  margin: 0.5rem 0;
+  color: #0369a1;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+
+.image-info p:first-child {
+  margin-top: 0;
+}
+
+.image-info p:last-child {
+  margin-bottom: 0;
+}
+
+.image-info strong {
+  color: #1e40af;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .image-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 0.75rem;
+  }
+  
+  .image-upload-area {
+    padding: 1.5rem;
+  }
+  
+  .upload-placeholder svg {
+    font-size: 2.5rem;
+  }
+  
+  .upload-placeholder p {
+    font-size: 1rem;
   }
 }

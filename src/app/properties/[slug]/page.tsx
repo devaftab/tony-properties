@@ -43,6 +43,8 @@ export default function PropertyPage({ params }: PropertyPageProps) {
   const [property, setProperty] = useState<Property | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [showGalleryModal, setShowGalleryModal] = useState(false)
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
 
   const fetchProperty = useCallback(async () => {
     if (!slug) return
@@ -101,6 +103,41 @@ export default function PropertyPage({ params }: PropertyPageProps) {
       fetchProperty()
     }
   }, [slug, fetchProperty])
+
+  // Keyboard navigation for gallery modal
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (!showGalleryModal || !property?.images) return
+      
+      switch (event.key) {
+        case 'ArrowLeft':
+          event.preventDefault()
+          setSelectedImageIndex(prev => 
+            prev === 0 ? property.images.length - 1 : prev - 1
+          )
+          break
+        case 'ArrowRight':
+          event.preventDefault()
+          setSelectedImageIndex(prev => 
+            prev === property.images.length - 1 ? 0 : prev + 1
+          )
+          break
+        case 'Escape':
+          setShowGalleryModal(false)
+          break
+      }
+    }
+
+    if (showGalleryModal) {
+      document.addEventListener('keydown', handleKeyDown)
+      document.body.style.overflow = 'hidden' // Prevent background scrolling
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      document.body.style.overflow = 'unset' // Restore scrolling
+    }
+  }, [showGalleryModal, property?.images])
 
 
   // Loading state - check this FIRST
@@ -276,47 +313,133 @@ export default function PropertyPage({ params }: PropertyPageProps) {
           <div className="container">
             <h2 className="h2">Property Gallery</h2>
             <div className="gallery-grid">
-              <div className="gallery-item">
-                <Image 
-                  src={`/images/property-${slug === '3bhk' ? '1' : slug === 'apartments' ? '2' : slug === 'floor' ? '3' : '4'}.jpg`} 
-                  alt="Main View" 
-                  className="w-100"
-                  width={300}
-                  height={200}
-                />
-                <span>Main View</span>
-              </div>
-              <div className="gallery-item">
-                <Image 
-                  src="/images/kitchen-1940174_1280.jpg" 
-                  alt="Kitchen" 
-                  className="w-100"
-                  width={300}
-                  height={200}
-                />
-                <span>Kitchen</span>
-              </div>
-              <div className="gallery-item">
-                <Image 
-                  src="/images/kitchen-7850352_1280.jpg" 
-                  alt="Modern Kitchen" 
-                  className="w-100"
-                  width={300}
-                  height={200}
-                />
-                <span>Modern Kitchen</span>
-              </div>
-              <div className="gallery-item">
-                <Image 
-                  src={`/images/property-${slug === '3bhk' ? '2' : slug === 'apartments' ? '3' : slug === 'floor' ? '4' : '1'}.jpg`} 
-                  alt="Additional View" 
-                  className="w-100"
-                  width={300}
-                  height={200}
-                />
-                <span>Additional View</span>
-              </div>
+              {property.images && property.images.length > 0 ? (
+                // Display actual uploaded images
+                property.images.length === 1 ? (
+                  // If only one image, repeat it 4 times for gallery effect
+                  Array.from({ length: 4 }, (_, index) => (
+                    <div key={index} className="gallery-item" onClick={() => {
+                      setSelectedImageIndex(0)
+                      setShowGalleryModal(true)
+                    }}>
+                      <Image 
+                        src={property.images[0].url} 
+                        alt={`${propertyData.title} - View ${index + 1}`} 
+                        className="w-100"
+                        width={300}
+                        height={200}
+                      />
+                      <span>{index === 0 ? 'Main View' : `View ${index + 1}`}</span>
+                    </div>
+                  ))
+                ) : property.images.length <= 4 ? (
+                  // Display all available images (2-4 images)
+                  property.images.map((image, index) => (
+                    <div key={index} className="gallery-item" onClick={() => {
+                      setSelectedImageIndex(index)
+                      setShowGalleryModal(true)
+                    }}>
+                      <Image 
+                        src={image.url} 
+                        alt={`${propertyData.title} - ${image.isPrimary ? 'Main View' : `View ${index + 1}`}`} 
+                        className="w-100"
+                        width={300}
+                        height={200}
+                      />
+                      <span>{image.isPrimary ? 'Main View' : `View ${index + 1}`}</span>
+                    </div>
+                  ))
+                ) : (
+                  // Display first 4 images with "View All" option
+                  <>
+                    {property.images.slice(0, 4).map((image, index) => (
+                      <div key={index} className="gallery-item" onClick={() => {
+                        setSelectedImageIndex(index)
+                        setShowGalleryModal(true)
+                      }}>
+                        <Image 
+                          src={image.url} 
+                          alt={`${propertyData.title} - ${image.isPrimary ? 'Main View' : `View ${index + 1}`}`} 
+                          className="w-100"
+                          width={300}
+                          height={200}
+                        />
+                        <span>{image.isPrimary ? 'Main View' : `View ${index + 1}`}</span>
+                      </div>
+                    ))}
+                    <div className="gallery-item view-all-item" onClick={() => setShowGalleryModal(true)}>
+                      <div className="view-all-overlay">
+                        <div className="view-all-content">
+                          <span className="view-all-text">View All</span>
+                          <span className="image-count">+{property.images.length - 4} more</span>
+                        </div>
+                      </div>
+                      <Image 
+                        src={property.images[4].url} 
+                        alt={`${propertyData.title} - View 5`} 
+                        className="w-100"
+                        width={300}
+                        height={200}
+                      />
+                      <span>View All ({property.images.length} photos)</span>
+                    </div>
+                  </>
+                )
+              ) : (
+                // Fallback to static images if no images are uploaded
+                <>
+                  <div className="gallery-item">
+                    <Image 
+                      src={property.image} 
+                      alt="Main View" 
+                      className="w-100"
+                      width={300}
+                      height={200}
+                    />
+                    <span>Main View</span>
+                  </div>
+                  <div className="gallery-item">
+                    <Image 
+                      src="/images/kitchen-1940174_1280.jpg" 
+                      alt="Kitchen" 
+                      className="w-100"
+                      width={300}
+                      height={200}
+                    />
+                    <span>Kitchen</span>
+                  </div>
+                  <div className="gallery-item">
+                    <Image 
+                      src="/images/kitchen-7850352_1280.jpg" 
+                      alt="Modern Kitchen" 
+                      className="w-100"
+                      width={300}
+                      height={200}
+                    />
+                    <span>Modern Kitchen</span>
+                  </div>
+                  <div className="gallery-item">
+                    <Image 
+                      src={property.image} 
+                      alt="Additional View" 
+                      className="w-100"
+                      width={300}
+                      height={200}
+                    />
+                    <span>Additional View</span>
+                  </div>
+                </>
+              )}
             </div>
+            
+            {/* Show total image count if more than 4 images */}
+            {property.images && property.images.length > 4 && (
+              <div className="gallery-info">
+                <p className="gallery-count">
+                  Total Photos: {property.images.length} • Showing first 4 photos
+                </p>
+              </div>
+            )}
           </div>
         </section>
 
@@ -358,6 +481,78 @@ export default function PropertyPage({ params }: PropertyPageProps) {
           </div>
         </section>
       </main>
+
+      {/* Gallery Modal */}
+      {showGalleryModal && property.images && property.images.length > 0 && (
+        <div className="gallery-modal-overlay" onClick={() => setShowGalleryModal(false)}>
+          <div className="gallery-modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="gallery-modal-header">
+              <h3>{propertyData.title} - Photo Gallery</h3>
+              <button 
+                className="gallery-modal-close"
+                onClick={() => setShowGalleryModal(false)}
+              >
+                ×
+              </button>
+            </div>
+            
+            <div className="gallery-modal-main">
+              <button 
+                className="gallery-nav-btn gallery-nav-prev"
+                onClick={() => setSelectedImageIndex(prev => 
+                  prev === 0 ? property.images.length - 1 : prev - 1
+                )}
+              >
+                ‹
+              </button>
+              
+              <div className="gallery-modal-image">
+                <Image 
+                  src={property.images[selectedImageIndex].url}
+                  alt={`${propertyData.title} - Photo ${selectedImageIndex + 1}`}
+                  width={800}
+                  height={600}
+                  className="gallery-modal-img"
+                />
+                <div className="gallery-image-info">
+                  <span>Photo {selectedImageIndex + 1} of {property.images.length}</span>
+                  {property.images[selectedImageIndex].isPrimary && (
+                    <span className="primary-badge">Primary Photo</span>
+                  )}
+                </div>
+              </div>
+              
+              <button 
+                className="gallery-nav-btn gallery-nav-next"
+                onClick={() => setSelectedImageIndex(prev => 
+                  prev === property.images.length - 1 ? 0 : prev + 1
+                )}
+              >
+                ›
+              </button>
+            </div>
+            
+            <div className="gallery-modal-thumbnails">
+              {property.images.map((image, index) => (
+                <div 
+                  key={index} 
+                  className={`gallery-thumbnail ${index === selectedImageIndex ? 'active' : ''}`}
+                  onClick={() => setSelectedImageIndex(index)}
+                >
+                  <Image 
+                    src={image.url}
+                    alt={`${propertyData.title} - Thumbnail ${index + 1}`}
+                    width={80}
+                    height={60}
+                    className="thumbnail-img"
+                  />
+                  {image.isPrimary && <span className="primary-indicator">★</span>}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       <Footer />
     </>
