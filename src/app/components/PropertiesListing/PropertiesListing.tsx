@@ -104,7 +104,6 @@ export default function PropertiesListing() {
       })) || []
 
       setProperties(transformedProperties)
-      console.log(`✅ Loaded ${transformedProperties.length} properties from Supabase for public page`)
     } catch (error) {
       console.error('Error fetching properties:', error)
     } finally {

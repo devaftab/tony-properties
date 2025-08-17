@@ -44,35 +44,12 @@ interface FormData {
   slug: string
 }
 
-interface PropertyData {
-  id: number
-  title: string
-  location: string
-  price: number
-  period: string
-  badge: string
-  description: string
-  bedrooms: number
-  bathrooms: number
-  area: number
-  area_unit: string
-  property_type: string
-  parking: number
-  year_built: number
-  slug: string
-  property_images?: Array<{
-    url: string
-    is_primary: boolean
-    public_id?: string
-  }>
-}
+
 
 export default function EditProperty() {
   const router = useRouter()
   const params = useParams()
   const propertyId = parseInt(params.id as string)
-  console.log('URL params:', params)
-  console.log('Parsed property ID:', propertyId)
   
   const [formData, setFormData] = useState<FormData>({
     title: '',
@@ -107,7 +84,6 @@ export default function EditProperty() {
         setLoading(true)
         
         // Fetch the property data from Supabase
-        console.log('Fetching property with ID:', propertyId)
         const { data: propertyData, error: fetchError } = await supabase
           .from('properties')
           .select(`
@@ -116,9 +92,6 @@ export default function EditProperty() {
           `)
           .eq('id', propertyId)
           .single()
-        
-        console.log('Property data fetched:', propertyData)
-        console.log('Fetch error:', fetchError)
 
         if (fetchError) {
           console.error('Error fetching property:', fetchError)
@@ -186,8 +159,7 @@ export default function EditProperty() {
         }
 
         // Fetch amenities for this property
-        console.log('Fetching amenities for edit form, property ID:', propertyId)
-        const { data: amenitiesData, error: amenitiesError } = await supabase
+        const { data: amenitiesData } = await supabase
           .from('property_amenities')
           .select(`
             amenity_id,
@@ -195,12 +167,8 @@ export default function EditProperty() {
           `)
           .eq('property_id', propertyId)
 
-        console.log('Edit form amenities data:', amenitiesData)
-        console.log('Edit form amenities error:', amenitiesError)
-
         if (amenitiesData) {
           const propertyAmenities = amenitiesData.map((item: { amenities: { name: string }[] | { name: string } }) => {
-            console.log('Processing amenity item:', item)
             if (item.amenities && Array.isArray(item.amenities)) {
               return item.amenities[0]?.name
             } else if (item.amenities && typeof item.amenities === 'object') {
@@ -208,7 +176,6 @@ export default function EditProperty() {
             }
             return null
           }).filter((name): name is string => name !== null)
-          console.log('Edit form extracted amenities:', propertyAmenities)
           setAmenities(propertyAmenities)
         }
 
@@ -437,8 +404,6 @@ export default function EditProperty() {
       }
       
       // Update property in database
-      console.log('Updating property with data:', updateData)
-      
       const { error: updateError } = await supabase
         .from('properties')
         .update(updateData)
@@ -511,8 +476,6 @@ export default function EditProperty() {
       }
 
       // Handle amenities updates
-      console.log('Saving amenities:', amenities)
-      
       // Always delete existing amenities first (whether adding new ones or clearing all)
       const { error: deleteAmenitiesError } = await supabase
         .from('property_amenities')
@@ -522,17 +485,11 @@ export default function EditProperty() {
       if (deleteAmenitiesError) {
         console.error('Error deleting existing amenities:', deleteAmenitiesError)
         // Continue anyway, as the property was updated successfully
-      } else {
-        console.log('Successfully deleted existing amenities')
       }
 
       // Insert new amenities if any exist
       if (amenities.length > 0) {
-        console.log('Inserting new amenities:', amenities)
-        
         for (const amenityName of amenities) {
-          console.log('Processing amenity:', amenityName)
-          
           // First, get or create the amenity
           let { data: amenity } = await supabase
             .from('amenities')
@@ -541,7 +498,6 @@ export default function EditProperty() {
             .single()
 
           if (!amenity) {
-            console.log('Creating new amenity:', amenityName)
             const { data: newAmenity, error: amenityError } = await supabase
               .from('amenities')
               .insert({ name: amenityName })
@@ -553,9 +509,6 @@ export default function EditProperty() {
               continue
             }
             amenity = newAmenity
-            console.log('Created amenity with ID:', amenity.id)
-          } else {
-            console.log('Found existing amenity:', amenity.id)
           }
 
           // Link property to amenity
@@ -568,12 +521,8 @@ export default function EditProperty() {
 
           if (linkError) {
             console.error('Error linking amenity:', linkError)
-          } else {
-            console.log('Successfully linked amenity:', amenityName)
           }
         }
-      } else {
-        console.log('No amenities to save - property will have no amenities')
       }
       
       setShowSuccess(true)

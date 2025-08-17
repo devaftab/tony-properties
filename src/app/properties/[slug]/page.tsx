@@ -75,19 +75,13 @@ export default function PropertyPage({ params }: PropertyPageProps) {
       }
 
       // Fetch amenities for this property
-      console.log('Fetching amenities for property ID:', propertyData.id)
-      const { data: amenitiesData, error: amenitiesError } = await supabase
+      const { data: amenitiesData } = await supabase
         .from('property_amenities')
         .select(`
           amenity_id,
           amenities(name)
         `)
         .eq('property_id', propertyData.id)
-
-      console.log('Amenities data fetched:', amenitiesData)
-      console.log('Amenities error:', amenitiesError)
-      console.log('First amenity item structure:', amenitiesData?.[0])
-      console.log('First amenity amenities field:', amenitiesData?.[0]?.amenities)
 
       // Get the primary image URL
       const primaryImage = propertyData.property_images?.find((img: { is_primary: boolean; url: string }) => img.is_primary)?.url || 
@@ -96,8 +90,6 @@ export default function PropertyPage({ params }: PropertyPageProps) {
 
       // Extract amenities from the joined data
       const propertyAmenities = amenitiesData?.map((item: { amenities: { name: string }[] | { name: string } }) => {
-        console.log('Processing item:', item)
-        console.log('Item amenities field:', item.amenities)
         if (item.amenities && Array.isArray(item.amenities)) {
           return item.amenities[0]?.name
         } else if (item.amenities && typeof item.amenities === 'object') {
@@ -105,7 +97,6 @@ export default function PropertyPage({ params }: PropertyPageProps) {
         }
         return null
       }).filter((name): name is string => name !== null) || []
-      console.log('Extracted amenities:', propertyAmenities)
 
       // Transform the data to match the Property interface
       const transformedProperty: Property = {

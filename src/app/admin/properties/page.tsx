@@ -4,9 +4,43 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { IoAddOutline, IoSearchOutline, IoTrashOutline } from 'react-icons/io5'
 import {MdOutlineEdit} from 'react-icons/md'
-import { Property } from '../../data/properties'
+
 import { supabase } from '@/lib/supabase'
 import { useSearchParams } from 'next/navigation'
+
+// Property interface definition
+interface Property {
+  id: number
+  title: string
+  location: string
+  price: string
+  period: string
+  badge: string
+  badgeClass: string
+  image: string
+  images?: Array<{
+    url: string
+    thumbnailUrl?: string
+    mediumUrl?: string
+    largeUrl?: string
+    publicId?: string
+    width?: number
+    height?: number
+    format?: string
+    size?: number
+  }>
+  description: string
+  bedrooms: number
+  bathrooms: number
+  area: string
+  areaUnit: string
+  slug: string
+  propertyType?: string
+  parking?: number
+  yearBuilt?: number
+  created_at?: string
+  updated_at?: string
+}
 
 export default function AdminProperties() {
   const searchParams = useSearchParams()
