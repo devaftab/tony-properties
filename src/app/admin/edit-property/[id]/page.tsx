@@ -450,8 +450,6 @@ export default function EditProperty() {
 
         // Delete existing images from Cloudinary if they exist
         if (existingImages && existingImages.length > 0) {
-          console.log(`Deleting ${existingImages.length} existing images from Cloudinary...`)
-          
           for (const image of existingImages) {
             if (image.public_id) {
               try {
@@ -465,8 +463,6 @@ export default function EditProperty() {
 
                 if (!deleteResponse.ok) {
                   console.error(`Failed to delete image ${image.public_id} from Cloudinary`)
-                } else {
-                  console.log(`Successfully deleted image ${image.public_id} from Cloudinary`)
                 }
               } catch (error) {
                 console.error(`Error deleting image ${image.public_id} from Cloudinary:`, error)

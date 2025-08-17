@@ -6,17 +6,11 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "upload-images": "node scripts/upload-images-to-cloudinary.js",
-    "update-properties": "node scripts/update-properties-with-cloudinary.js",
-    "migrate-to-cloudinary": "node scripts/migrate-to-cloudinary.js",
-    "migrate-to-supabase": "node scripts/migrate-to-supabase.js",
-    "re-enable-rls": "echo 'Run the SQL script in scripts/re-enable-rls.sql in your Supabase SQL Editor'"
+    "lint": "next lint"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.55.0",
+    "@supabase/supabasejs": "^2.55.0",
     "cloudinary": "^2.7.0",
-    "dotenv": "^17.2.1",
     "next": "15.4.6",
     "react": "19.1.0",
     "react-dom": "19.1.0",

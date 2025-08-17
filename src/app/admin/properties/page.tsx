@@ -213,8 +213,6 @@ export default function AdminProperties() {
 
           // Delete images from Cloudinary if they exist
           if (propertyImages && propertyImages.length > 0) {
-            console.log(`Deleting ${propertyImages.length} images from Cloudinary for property ${id}...`)
-            
             for (const image of propertyImages) {
               if (image.public_id) {
                 try {
@@ -228,8 +226,6 @@ export default function AdminProperties() {
 
                   if (!deleteResponse.ok) {
                     console.error(`Failed to delete image ${image.public_id} from Cloudinary`)
-                  } else {
-                    console.log(`Successfully deleted image ${image.public_id} from Cloudinary`)
                   }
                 } catch (error) {
                   console.error(`Error deleting image ${image.public_id} from Cloudinary:`, error)
@@ -318,32 +314,28 @@ export default function AdminProperties() {
         deletionSuccessful = false
       }
 
-      // Delete images from Cloudinary if they exist
-      if (propertyImages && propertyImages.length > 0) {
-        console.log(`Deleting ${propertyImages.length} images from Cloudinary...`)
-        
-        for (const image of propertyImages) {
-          if (image.public_id) {
-            try {
-              const deleteResponse = await fetch('/api/cloudinary/delete', {
-                method: 'POST',
-                headers: {
-                  'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ publicId: image.public_id })
-              })
+              // Delete images from Cloudinary if they exist
+        if (propertyImages && propertyImages.length > 0) {
+          for (const image of propertyImages) {
+            if (image.public_id) {
+              try {
+                const deleteResponse = await fetch('/api/cloudinary/delete', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ publicId: image.public_id })
+                })
 
-              if (!deleteResponse.ok) {
-                console.error(`Failed to delete image ${image.public_id} from Cloudinary`)
-              } else {
-                console.log(`Successfully deleted image ${image.public_id} from Cloudinary`)
+                if (!deleteResponse.ok) {
+                  console.error(`Failed to delete image ${image.public_id} from Cloudinary`)
+                }
+              } catch (error) {
+                console.error(`Error deleting image ${image.public_id} from Cloudinary:`, error)
               }
-            } catch (error) {
-              console.error(`Error deleting image ${image.public_id} from Cloudinary:`, error)
             }
           }
         }
-      }
 
       // Delete property images from database
       const { error: imagesError } = await supabase

@@ -65,6 +65,8 @@ function AdminLayoutContent({
 
   return (
     <div className="admin-layout">
+
+
       {/* Mobile Bottom Bar */}
       <div className="mobile-bottom-bar">
         <button 
@@ -75,6 +77,8 @@ function AdminLayoutContent({
           <span>Menu</span>
         </button>
       </div>
+
+
 
       {/* Sidebar */}
       <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
@@ -88,7 +92,7 @@ function AdminLayoutContent({
               <li key={item.href} className="nav-item">
                 <Link 
                   href={item.href} 
-                  className="nav-link"
+                  className={`nav-link ${pathname === item.href ? 'active' : ''}`}
                   onClick={() => setSidebarOpen(false)}
                 >
                   <item.icon />
@@ -102,7 +106,7 @@ function AdminLayoutContent({
         <div className="sidebar-footer">
           <button className="logout-btn" onClick={handleLogout}>
             <IoLogOutOutline />
-            <span>Logout</span>
+            <span>LOGOUT</span>
           </button>
         </div>
       </aside>
@@ -111,9 +115,14 @@ function AdminLayoutContent({
       <main className="admin-main">
         <header className="admin-header">
           <div className="header-content">
-            <h1>Property Management Dashboard</h1>
-            <div className="user-info">
-              <span>Welcome, {user.email}</span>
+            <div className="header-left">
+              <h1>Property Management Dashboard</h1>
+            </div>
+            <div className="header-right">
+              <div className="user-info">
+                <span className="welcome-text">Welcome,</span>
+                <span className="user-email">{user.email}</span>
+              </div>
             </div>
           </div>
         </header>

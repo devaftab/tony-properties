@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect, useCallback } from 'react'
-import { supabase } from '../../../lib/supabase'
+import { supabase } from '@/lib/supabase'
 
 interface PropertyData {
   id: number
@@ -381,7 +381,7 @@ export default function AdminAnalytics() {
             <h3>Monthly Trends</h3>
             <div className="chart-content">
               <div className="trend-chart">
-                {analytics.monthlyTrends.map((trend, index) => (
+                {analytics.monthlyTrends.map((trend) => (
                   <div key={trend.month} className="trend-item">
                     <div className="trend-month">{trend.month}</div>
                     <div className="trend-bar">
