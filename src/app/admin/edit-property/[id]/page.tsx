@@ -5,12 +5,53 @@ import Image from 'next/image'
 import { IoCloudUploadOutline, IoCheckmarkCircleOutline, IoArrowBackOutline } from 'react-icons/io5'
 import { supabase } from '@/lib/supabase'
 
+interface FormData {
+  title: string
+  location: string
+  price: string
+  period: string
+  badge: string
+  badgeClass: string
+  image: string
+  description: string
+  bedrooms: number
+  bathrooms: number
+  area: string
+  areaUnit: string
+  propertyType: string
+  parking: string
+  yearBuilt: string
+  slug: string
+}
+
+interface PropertyData {
+  id: number
+  title: string
+  location: string
+  price: number
+  period: string
+  badge: string
+  description: string
+  bedrooms: number
+  bathrooms: number
+  area: number
+  area_unit: string
+  property_type: string
+  parking: number
+  year_built: number
+  slug: string
+  property_images?: Array<{
+    url: string
+    is_primary: boolean
+  }>
+}
+
 export default function EditProperty() {
   const router = useRouter()
   const params = useParams()
   const propertyId = parseInt(params.id as string)
   
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     title: '',
     location: '',
     price: '',
@@ -60,14 +101,16 @@ export default function EditProperty() {
           return
         }
 
+        const propertyData = property as PropertyData
+
         // Get the primary image URL
-        const primaryImage = property.property_images?.find((img: { is_primary: boolean; url: string }) => img.is_primary)?.url || 
-                           property.property_images?.[0]?.url || 
+        const primaryImage = propertyData.property_images?.find((img: { is_primary: boolean; url: string }) => img.is_primary)?.url || 
+                           propertyData.property_images?.[0]?.url || 
                            '/images/property-1.jpg'
 
         // Convert parking integer back to string for form display
         let parkingString: string
-        switch (property.parking) {
+        switch (propertyData.parking) {
           case 1:
             parkingString = 'Yes'
             break
@@ -85,22 +128,22 @@ export default function EditProperty() {
         }
 
         setFormData({
-          title: property.title || '',
-          location: property.location || '',
-          price: String(property.price || ''),
-          period: property.period || '',
-          badge: property.badge || 'For Sale',
-          badgeClass: property.period === '/Month' ? 'green' : 'orange',
+          title: propertyData.title || '',
+          location: propertyData.location || '',
+          price: String(propertyData.price || ''),
+          period: propertyData.period || '',
+          badge: propertyData.badge || 'For Sale',
+          badgeClass: propertyData.period === '/Month' ? 'green' : 'orange',
           image: primaryImage,
-          description: property.description || '',
-          bedrooms: property.bedrooms || 0,
-          bathrooms: property.bathrooms || 0,
-          area: String(property.area || ''),
-          areaUnit: property.area_unit || 'sq ft',
-          propertyType: property.property_type || '',
+          description: propertyData.description || '',
+          bedrooms: propertyData.bedrooms || 0,
+          bathrooms: propertyData.bathrooms || 0,
+          area: String(propertyData.area || ''),
+          areaUnit: propertyData.area_unit || 'sq ft',
+          propertyType: propertyData.property_type || '',
           parking: parkingString,
-          yearBuilt: String(property.year_built || ''),
-          slug: property.slug || ''
+          yearBuilt: String(propertyData.year_built || ''),
+          slug: propertyData.slug || ''
         })
         
         setImagePreview(primaryImage)
@@ -164,14 +207,11 @@ export default function EditProperty() {
   }
 
   // Helper function to safely trim string values
-  const safeTrim = (value: any): string => {
+  const safeTrim = (value: string | number): string => {
     if (typeof value === 'string') {
       return value.trim()
     }
-    if (typeof value === 'number') {
-      return String(value).trim()
-    }
-    return ''
+    return String(value).trim()
   }
 
   const handleSubmit = async (e: React.FormEvent) => {

@@ -168,15 +168,77 @@ After implementing the parking fix, a new error appeared: **"formData.price.trim
 
 3. **Safe Validation**: Added a helper function to safely trim values regardless of type:
    ```typescript
-   const safeTrim = (value: any): string => {
+   const safeTrim = (value: string | number): string => {
      if (typeof value === 'string') {
        return value.trim()
      }
-     if (typeof value === 'number') {
-       return String(value).trim()
-     }
-     return ''
+     return String(value).trim()
    }
+   ```
+
+### TypeScript Build Errors
+During Vercel deployment, the build was failing with: **"Unexpected any. Specify a different type. @typescript-eslint/no-explicit-any"**
+
+**Root Cause**: The `safeTrim` function was using `any` type which violates TypeScript strict rules.
+
+**Solution**:
+1. **Proper Type Interfaces**: Added comprehensive TypeScript interfaces:
+   ```typescript
+   interface FormData {
+     title: string
+     location: string
+     price: string
+     period: string
+     badge: string
+     badgeClass: string
+     image: string
+     description: string
+     bedrooms: number
+     bathrooms: number
+     area: string
+     areaUnit: string
+     propertyType: string
+     parking: string
+     yearBuilt: string
+     slug: string
+   }
+
+   interface PropertyData {
+     id: number
+     title: string
+     location: string
+     price: number
+     period: string
+     badge: string
+     description: string
+     bedrooms: number
+     bathrooms: number
+     area: number
+     area_unit: string
+     property_type: string
+     parking: number
+     year_built: number
+     slug: string
+     property_images?: Array<{
+       url: string
+       is_primary: boolean
+     }>
+   }
+   ```
+
+2. **Type-Safe Functions**: Replaced `any` with proper union types:
+   ```typescript
+   const safeTrim = (value: string | number): string => {
+     if (typeof value === 'string') {
+       return value.trim()
+     }
+     return String(value).trim()
+   }
+   ```
+
+3. **Proper Type Assertions**: Used proper type casting for database responses:
+   ```typescript
+   const propertyData = property as PropertyData
    ```
 
 ## Files Modified
