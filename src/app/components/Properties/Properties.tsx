@@ -77,7 +77,7 @@ export default function Properties() {
                   </li>
                 </ul>
 
-                <Link href="/properties/3bhk" className={`btn ${styles.exploreBtn}`}>
+                <Link href="/properties/3bhk-apartment" className={`btn ${styles.exploreBtn}`}>
                   <span>Explore Property</span>
                   <IoArrowForwardOutline />
                 </Link>

@@ -315,19 +315,7 @@ export default function EditProperty() {
       setLoading(true)
       setError('') // Clear any previous errors
       
-      // Debug: Log formData types and values
-      console.log('Form data types:', {
-        title: typeof formData.title,
-        price: typeof formData.price,
-        location: typeof formData.location,
-        slug: typeof formData.slug
-      })
-      console.log('Form data values:', {
-        title: formData.title,
-        price: formData.price,
-        location: formData.location,
-        slug: formData.slug
-      })
+      // Form validation and processing
       
       // Validate required fields
       if (!safeTrim(formData.title)) {
@@ -400,8 +388,7 @@ export default function EditProperty() {
         updated_at: new Date().toISOString()
       }
       
-      console.log('Updating property with data:', updateData)
-      console.log('Property ID:', propertyId)
+      // Update property in database
       
       const { error: updateError } = await supabase
         .from('properties')
@@ -409,13 +396,7 @@ export default function EditProperty() {
         .eq('id', propertyId)
 
       if (updateError) {
-        console.error('Supabase update error:', updateError)
-        console.error('Error details:', {
-          code: updateError.code,
-          message: updateError.message,
-          details: updateError.details,
-          hint: updateError.hint
-        })
+        // Handle specific error types with user-friendly messages
         
         // Handle specific error types
         if (updateError.code === '23514') {
@@ -480,8 +461,7 @@ export default function EditProperty() {
         router.push('/admin/properties')
       }, 2000)
     } catch (err) {
-      console.error('Unexpected error:', err)
-      setError(`An unexpected error occurred: ${err instanceof Error ? err.message : 'Unknown error'}`)
+      setError('An unexpected error occurred. Please try again.')
     } finally {
       setLoading(false)
     }

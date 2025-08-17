@@ -1156,14 +1156,46 @@ button, a { transition: var(--transition); }
 .amenities-list li {
   display: flex;
   align-items: center;
-  gap: 10px;
-  color: var(--cadet);
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  color: var(--dark-jungle-green);
   font-size: var(--fs-5);
 }
 
-.amenities-list ion-icon {
-  color: var(--yellow-green);
-  font-size: 18px;
+.amenities-list li:last-child {
+  margin-bottom: 0;
+}
+
+.amenities-list li svg {
+  color: var(--orange-soda);
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+/* No Amenities State */
+.no-amenities {
+  text-align: center;
+  padding: 2rem;
+  background: #f9fafb;
+  border: 1px dashed #d1d5db;
+  border-radius: 0.75rem;
+  margin-top: 1rem;
+}
+
+.no-amenities p {
+  margin: 0 0 1rem 0;
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+.no-amenities p:last-child {
+  margin-bottom: 0;
+}
+
+.amenities-note {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  font-style: italic;
 }
 
 

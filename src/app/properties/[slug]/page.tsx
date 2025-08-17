@@ -46,6 +46,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
   const [showGalleryModal, setShowGalleryModal] = useState(false)
   const [selectedImageIndex, setSelectedImageIndex] = useState(0)
 
+
   const fetchProperty = useCallback(async () => {
     if (!slug) return
     
@@ -64,7 +65,6 @@ export default function PropertyPage({ params }: PropertyPageProps) {
         .single()
 
       if (fetchError) {
-        console.error('Error fetching property:', fetchError)
         setError('Property not found')
         return
       }
@@ -74,10 +74,24 @@ export default function PropertyPage({ params }: PropertyPageProps) {
         return
       }
 
+      // Fetch amenities for this property
+      const { data: amenitiesData, error: amenitiesError } = await supabase
+        .from('property_amenities')
+        .select(`
+          amenity_id,
+          amenities(name)
+        `)
+        .eq('property_id', propertyData.id)
+
+      // Amenities error is handled gracefully - properties can still display without amenities
+
       // Get the primary image URL
       const primaryImage = propertyData.property_images?.find((img: { is_primary: boolean; url: string }) => img.is_primary)?.url || 
                          propertyData.property_images?.[0]?.url || 
                          '/images/property-1.jpg'
+
+      // Extract amenities from the joined data
+      const propertyAmenities = amenitiesData?.map((item: any) => item.amenities?.name).filter(Boolean) || []
 
       // Transform the data to match the Property interface
       const transformedProperty: Property = {
@@ -86,7 +100,8 @@ export default function PropertyPage({ params }: PropertyPageProps) {
         images: propertyData.property_images?.map((img: { url: string; is_primary: boolean }) => ({
           url: img.url,
           isPrimary: img.is_primary
-        })) || []
+        })) || [],
+        amenities: propertyAmenities
       }
 
       setProperty(transformedProperty)
@@ -162,7 +177,40 @@ export default function PropertyPage({ params }: PropertyPageProps) {
         <div style={{ padding: '100px 20px', textAlign: 'center' }}>
           <h1>Property Not Found</h1>
           <p>{error || 'The property you&apos;re looking for doesn&apos;t exist.'}</p>
-          <Link href="/properties" style={{ color: '#3b82f6', textDecoration: 'underline' }}>
+          
+          {/* Helpful information */}
+          <div style={{ marginTop: '1rem', padding: '1rem', background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: '0.5rem', maxWidth: '600px', margin: '1rem auto' }}>
+            <h4 style={{ margin: '0 0 0.5rem 0', color: '#0369a1' }}>💡 Need Help?</h4>
+            <p style={{ margin: '0', fontSize: '0.875rem', color: '#0369a1' }}>
+              The property you're looking for might have been moved or removed.
+            </p>
+            <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem', color: '#0369a1' }}>
+              Browse our current properties or contact us for assistance.
+            </p>
+          </div>
+          
+          {/* Navigation to properties */}
+          <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+            <Link href="/properties" style={{ 
+              display: 'inline-block',
+              padding: '1rem 2rem',
+              background: '#3b82f6',
+              color: 'white',
+              textDecoration: 'none',
+              borderRadius: '0.5rem',
+              fontWeight: '600',
+              transition: 'all 0.2s'
+            }}>
+              Browse All Properties
+            </Link>
+          </div>
+          
+          <Link href="/properties" style={{ 
+            color: '#3b82f6', 
+            textDecoration: 'underline',
+            marginTop: '1rem',
+            display: 'inline-block'
+          }}>
             Back to Properties
           </Link>
         </div>
@@ -186,15 +234,15 @@ export default function PropertyPage({ params }: PropertyPageProps) {
       { icon: 'man-outline', value: property.bathrooms?.toString() || '0', label: 'Bathrooms' },
       { icon: 'home-outline', value: property.area || '0', label: property.area_unit || 'Sq. Ft.' }
     ],
-    amenities: [
+    amenities: property.amenities || [
       '24/7 Security', 'Power Backup', 'Water Supply', 'Internet Ready',
       'CCTV Surveillance', 'Elevator', 'Garden Area', 'Children\'s Play Area'
     ],
-    highlights: [
+    highlights: property.highlights || [
       'Prime Location', 'Modern Construction', 'Fully Furnished',
       'Ready to Move', 'Excellent Connectivity', 'Family Friendly'
     ],
-    locationInfo: [
+    locationInfo: property.locationInfo || [
       'Metro Station: 0.5 km', 'Market: 0.3 km', 'Hospital: 1.2 km',
       'School: 0.8 km', 'Airport: 15 km', 'Railway Station: 8 km'
     ]
@@ -260,13 +308,22 @@ export default function PropertyPage({ params }: PropertyPageProps) {
 
                 <div className="property-amenities">
                   <h3 className="h3">Amenities</h3>
-                  <ul className="amenities-list">
-                    {propertyData.amenities.map((amenity, index) => (
-                      <li key={index}>
-                        <IoCheckmarkCircleOutline /> {amenity}
-                      </li>
-                    ))}
-                  </ul>
+                  {property.amenities && property.amenities.length > 0 ? (
+                    <ul className="amenities-list">
+                      {property.amenities.map((amenity, index) => (
+                        <li key={index}>
+                          <IoCheckmarkCircleOutline /> {amenity}
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <div className="no-amenities">
+                      <p>No specific amenities listed for this property.</p>
+                      <p className="amenities-note">
+                        Contact us for detailed information about available amenities and features.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -289,18 +346,36 @@ export default function PropertyPage({ params }: PropertyPageProps) {
                 <div className="property-highlights">
                   <h3 className="h3">Property Highlights</h3>
                   <ul>
-                    {propertyData.highlights.map((highlight, index) => (
-                      <li key={index}>{highlight}</li>
-                    ))}
+                    {property.highlights && property.highlights.length > 0 ? (
+                      property.highlights.map((highlight, index) => (
+                        <li key={index}>{highlight}</li>
+                      ))
+                    ) : (
+                      <>
+                        <li>Prime Location</li>
+                        <li>Modern Construction</li>
+                        <li>Ready to Move</li>
+                        <li>Excellent Connectivity</li>
+                      </>
+                    )}
                   </ul>
                 </div>
 
                 <div className="property-location-info">
                   <h3 className="h3">Location Highlights</h3>
                   <ul>
-                    {propertyData.locationInfo.map((info, index) => (
-                      <li key={index}>{info}</li>
-                    ))}
+                    {property.locationInfo && property.locationInfo.length > 0 ? (
+                      property.locationInfo.map((info, index) => (
+                        <li key={index}>{info}</li>
+                      ))
+                    ) : (
+                      <>
+                        <li>Metro Station: Well connected</li>
+                        <li>Market: Local markets nearby</li>
+                        <li>Hospital: Healthcare facilities accessible</li>
+                        <li>School: Educational institutions in area</li>
+                      </>
+                    )}
                   </ul>
                 </div>
               </div>
@@ -448,13 +523,13 @@ export default function PropertyPage({ params }: PropertyPageProps) {
           <div className="container">
             <h2 className="h2">Similar Properties</h2>
             <div className="similar-properties-grid">
-              {['3bhk', 'apartments', 'floor', 'apartment'].filter(s => s !== slug).map((similarSlug) => {
+              {['3bhk-apartment', 'apartments', 'floor', 'apartment'].filter(s => s !== slug).map((similarSlug) => {
                 // For now, show static similar properties until we implement proper similar property fetching
                 const similarData = {
-                  title: similarSlug === '3bhk' ? '3BHK Apartment' : 
+                  title: similarSlug === '3bhk-apartment' ? '3BHK Apartment' : 
                          similarSlug === 'apartments' ? 'Modern Apartments' : 
                          similarSlug === 'floor' ? 'Elegant Floor' : 'Cozy Apartment',
-                  price: similarSlug === '3bhk' ? '₹34,900' : 
+                  price: similarSlug === '3bhk-apartment' ? '₹34,900' : 
                          similarSlug === 'apartments' ? '₹35,90,000' : 
                          similarSlug === 'floor' ? '₹50,000' : '₹34,000',
                   period: similarSlug === 'apartments' ? '' : '/Month'
@@ -463,7 +538,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
                 return (
                   <div key={similarSlug} className="similar-property-card">
                     <Image 
-                      src={`/images/property-${similarSlug === '3bhk' ? '1' : similarSlug === 'apartments' ? '2' : similarSlug === 'floor' ? '3' : '4'}.jpg`} 
+                      src={`/images/property-${similarSlug === '3bhk-apartment' ? '1' : similarSlug === 'apartments' ? '2' : similarSlug === 'floor' ? '3' : '4'}.jpg`} 
                       alt={similarData.title} 
                       className="w-100"
                       width={300}

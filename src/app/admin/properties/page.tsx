@@ -554,7 +554,7 @@ export default function AdminProperties() {
                           console.error('Image failed to load:', property.image, e)
                           // Try to use the original Cloudinary URL if thumbnail fails
                           if (property.images && property.images.length > 0) {
-                            console.log('Falling back to original image URL:', property.images[0].url)
+                            // Fallback to original image URL
                           }
                         }}
                        />
