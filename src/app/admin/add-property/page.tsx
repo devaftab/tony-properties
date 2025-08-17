@@ -241,8 +241,6 @@ export default function AddProperty() {
         }))
       }
 
-      console.log('New Property Data:', propertyData)
-      
       // Save the property to Supabase
       const { data: savedProperty, error: propertyError } = await supabase
         .from('properties')
@@ -270,8 +268,6 @@ export default function AddProperty() {
         throw new Error(`Failed to save property: ${propertyError.message}`)
       }
 
-      console.log('Property saved to Supabase:', savedProperty)
-
       // Save property images to Supabase
       if (propertyData.images.length > 0) {
         const imageInserts = propertyData.images.map((img, index) => ({
@@ -295,8 +291,6 @@ export default function AddProperty() {
 
         if (imagesError) {
           console.error('Failed to save images:', imagesError)
-        } else {
-          console.log('Images saved to Supabase')
         }
       }
 

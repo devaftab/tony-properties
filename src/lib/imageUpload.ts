@@ -72,16 +72,6 @@ export const uploadImageToCloudinary = async (
       throw new ImageUploadError('Cloudinary configuration is incomplete')
     }
 
-    // Debug logging
-    console.log('🔍 Upload Debug Info:', {
-      fileName: file.name,
-      fileSize: file.size,
-      fileType: file.type,
-      cloudName: CLOUDINARY_CONFIG.cloudName,
-      uploadPreset: CLOUDINARY_CONFIG.uploadPreset,
-      apiKey: CLOUDINARY_CONFIG.apiKey ? 'Set' : 'Not Set'
-    })
-
     // Create FormData
     const formData = new FormData()
     formData.append('file', file)
@@ -107,12 +97,6 @@ export const uploadImageToCloudinary = async (
       })
 
       xhr.addEventListener('load', () => {
-        console.log('📥 Upload Response:', {
-          status: xhr.status,
-          statusText: xhr.statusText,
-          responseText: xhr.responseText
-        })
-
         if (xhr.status === 200) {
           try {
             const response = JSON.parse(xhr.responseText)
@@ -158,7 +142,6 @@ export const uploadImageToCloudinary = async (
 
       // Open and send request
       const uploadUrl = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CONFIG.cloudName}/image/upload`
-      console.log('📤 Upload URL:', uploadUrl)
       xhr.open('POST', uploadUrl)
       xhr.send(formData)
     })
@@ -264,16 +247,6 @@ export const getOptimizedImageUrl = (
 
   const transformationString = transformations.length > 0 ? transformations.join('/') + '/' : ''
   const finalUrl = `${urlParts[0]}/upload/${transformationString}${urlParts[1]}`
-  
-  // Debug logging
-  if (typeof window !== 'undefined') {
-    console.log('🔍 Image Transformation Debug:', {
-      originalUrl,
-      transformations,
-      transformationString,
-      finalUrl
-    })
-  }
   
   return finalUrl
 }
