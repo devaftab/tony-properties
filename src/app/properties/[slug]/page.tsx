@@ -75,7 +75,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
       }
 
       // Fetch amenities for this property
-      const { data: amenitiesData, error: amenitiesError } = await supabase
+      const { data: amenitiesData } = await supabase
         .from('property_amenities')
         .select(`
           amenity_id,
@@ -91,7 +91,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
                          '/images/property-1.jpg'
 
       // Extract amenities from the joined data
-      const propertyAmenities = amenitiesData?.map((item: any) => item.amenities?.name).filter(Boolean) || []
+      const propertyAmenities = amenitiesData?.map((item: { amenities: { name: string }[] }) => item.amenities[0]?.name).filter(Boolean) || []
 
       // Transform the data to match the Property interface
       const transformedProperty: Property = {
@@ -182,7 +182,7 @@ export default function PropertyPage({ params }: PropertyPageProps) {
           <div style={{ marginTop: '1rem', padding: '1rem', background: '#f0f9ff', border: '1px solid #bae6fd', borderRadius: '0.5rem', maxWidth: '600px', margin: '1rem auto' }}>
             <h4 style={{ margin: '0 0 0.5rem 0', color: '#0369a1' }}>💡 Need Help?</h4>
             <p style={{ margin: '0', fontSize: '0.875rem', color: '#0369a1' }}>
-              The property you're looking for might have been moved or removed.
+              The property you&apos;re looking for might have been moved or removed.
             </p>
             <p style={{ margin: '0.5rem 0 0 0', fontSize: '0.875rem', color: '#0369a1' }}>
               Browse our current properties or contact us for assistance.

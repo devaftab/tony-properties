@@ -12,7 +12,15 @@ interface PropertyImage {
   file?: File
   isUploading?: boolean
   uploadProgress?: number
-  cloudinaryData?: any
+  cloudinaryData?: {
+    id: string
+    url: string
+    publicId: string
+    width: number
+    height: number
+    format: string
+    size: number
+  }
   is_primary?: boolean
   public_id?: string
 }
@@ -86,7 +94,6 @@ export default function EditProperty() {
   const [images, setImages] = useState<PropertyImage[]>([])
   const [property, setProperty] = useState<PropertyData | null>(null)
   const [showSuccess, setShowSuccess] = useState(false)
-  const [imagePreview, setImagePreview] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
 
@@ -96,7 +103,7 @@ export default function EditProperty() {
         setLoading(true)
         
         // Fetch the property data from Supabase
-        const { data: property, error: fetchError } = await supabase
+        const { data: propertyData, error: fetchError } = await supabase
           .from('properties')
           .select(`
             *,
@@ -116,36 +123,30 @@ export default function EditProperty() {
           return
         }
 
-        const propertyData = property as PropertyData
-
         // Get the primary image URL
         const primaryImage = propertyData.property_images?.find((img: { is_primary: boolean; url: string }) => img.is_primary)?.url || 
                            propertyData.property_images?.[0]?.url || 
                            '/images/property-1.jpg'
 
         // Convert parking integer back to string for form display
-        let parkingString: string
-        switch (propertyData.parking) {
-          case 1:
-            parkingString = 'Yes'
-            break
-          case 0:
-            parkingString = 'No'
-            break
-          case 2:
-            parkingString = 'Street'
-            break
-          case 3:
-            parkingString = 'Garage'
-            break
-          default:
-            parkingString = 'No'
-        }
+        const parkingValue = (() => {
+          switch (propertyData.parking) {
+            case 1:
+              return 'Yes'
+            case 0:
+              return 'No'
+            case 2:
+              return 'Street'
+            case 3:
+              return 'Garage'
+            default:
+              return 'No'
+          }
+        })()
 
         // Transform the data to match the Property interface
         const transformedProperty: PropertyData = {
-          ...property,
-          image: primaryImage,
+          ...propertyData,
           images: propertyData.property_images?.map((img: { url: string; is_primary: boolean; public_id?: string }) => ({
             url: img.url,
             isPrimary: img.is_primary
@@ -156,22 +157,22 @@ export default function EditProperty() {
         
         // Set form data
         setFormData({
-          title: property.title || '',
-          location: property.location || '',
-          price: String(property.price || ''),
-          period: property.period || '',
-          badge: property.badge || '',
-          badgeClass: property.badge_class || 'green',
+          title: propertyData.title || '',
+          location: propertyData.location || '',
+          price: String(propertyData.price || ''),
+          period: propertyData.period || '',
+          badge: propertyData.badge || '',
+          badgeClass: 'green', // Default value since badge_class doesn't exist in PropertyData
           image: primaryImage,
-          description: property.description || '',
-          bedrooms: property.bedrooms || 0,
-          bathrooms: property.bathrooms || 0,
-          area: String(property.area || ''),
-          areaUnit: property.area_unit || 'sq ft',
-          propertyType: property.property_type || '',
-          parking: property.parking === 1 ? 'Yes' : property.parking === 2 ? 'Street' : property.parking === 3 ? 'Garage' : 'No',
-          yearBuilt: String(property.year_built || ''),
-          slug: property.slug || ''
+          description: propertyData.description || '',
+          bedrooms: propertyData.bedrooms || 0,
+          bathrooms: propertyData.bathrooms || 0,
+          area: String(propertyData.area || ''),
+          areaUnit: propertyData.area_unit || 'sq ft',
+          propertyType: propertyData.property_type || '',
+          parking: parkingValue,
+          yearBuilt: String(propertyData.year_built || ''),
+          slug: propertyData.slug || ''
         })
 
         // Set existing images
@@ -183,7 +184,6 @@ export default function EditProperty() {
             public_id: img.public_id
           }))
           setImages(existingImages)
-          setImagePreview(primaryImage)
         }
       } catch (err) {
         console.error('Error in fetchProperty:', err)
@@ -432,9 +432,9 @@ export default function EditProperty() {
         const imageInserts = images.map((img, index) => ({
           property_id: propertyId,
           url: img.url,
-          thumbnail_url: img.cloudinaryData?.thumbnailUrl || img.url,
-          medium_url: img.cloudinaryData?.mediumUrl || img.url,
-          large_url: img.cloudinaryData?.largeUrl || img.url,
+          thumbnail_url: img.url, // Use main URL for thumbnail
+          medium_url: img.url,    // Use main URL for medium
+          large_url: img.url,     // Use main URL for large
           public_id: img.cloudinaryData?.publicId || img.public_id,
           width: img.cloudinaryData?.width || 800,
           height: img.cloudinaryData?.height || 600,
@@ -460,7 +460,7 @@ export default function EditProperty() {
       setTimeout(() => {
         router.push('/admin/properties')
       }, 2000)
-    } catch (err) {
+    } catch {
       setError('An unexpected error occurred. Please try again.')
     } finally {
       setLoading(false)
