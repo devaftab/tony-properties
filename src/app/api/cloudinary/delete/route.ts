@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { v2 as cloudinary } from 'cloudinary'
-import crypto from 'crypto'
 
 // Configure Cloudinary
 cloudinary.config({
@@ -28,42 +27,30 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Create signature for secure deletion
-    const timestamp = Math.round(new Date().getTime() / 1000)
-    const signature = generateSignature(publicId, timestamp)
-
-    // Prepare deletion request
-    const formData = new FormData()
-    formData.append('public_id', publicId)
-    formData.append('api_key', process.env.CLOUDINARY_API_KEY!)
-    formData.append('timestamp', timestamp.toString())
-    formData.append('signature', signature)
-
-    // Send deletion request to Cloudinary
-    const response = await fetch(
-      `https://api.cloudinary.com/v1_1/${process.env.CLOUDINARY_CLOUD_NAME}/image/destroy`,
-      {
-        method: 'POST',
-        body: formData
+    // Use Cloudinary SDK for deletion (more reliable than manual signature generation)
+    try {
+      const result = await cloudinary.uploader.destroy(publicId)
+      
+      if (result.result === 'ok' || result.result === 'not found') {
+        return NextResponse.json({
+          success: true,
+          message: 'Image deleted successfully',
+          result
+        })
+      } else {
+        console.error('Cloudinary deletion failed:', result)
+        return NextResponse.json(
+          { error: 'Failed to delete image from Cloudinary' },
+          { status: 500 }
+        )
       }
-    )
-
-    if (!response.ok) {
-      const errorData = await response.text()
-      console.error('Cloudinary deletion failed:', errorData)
+    } catch (cloudinaryError) {
+      console.error('Cloudinary SDK error:', cloudinaryError)
       return NextResponse.json(
         { error: 'Failed to delete image from Cloudinary' },
-        { status: response.status }
+        { status: 500 }
       )
     }
-
-    const result = await response.json()
-
-    return NextResponse.json({
-      success: true,
-      message: 'Image deleted successfully',
-      result
-    })
 
   } catch (error) {
     console.error('Error deleting image:', error)
@@ -74,24 +61,4 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// Generate HMAC signature for Cloudinary API
-function generateSignature(publicId: string, timestamp: number): string {
-  const params = {
-    public_id: publicId,
-    timestamp: timestamp
-  }
 
-  // Create signature string
-  const signatureString = Object.keys(params)
-    .sort()
-    .map(key => `${key}=${params[key as keyof typeof params]}`)
-    .join('&')
-
-  // Generate HMAC signature
-  const signature = crypto
-    .createHmac('sha1', process.env.CLOUDINARY_API_SECRET!)
-    .update(signatureString)
-    .digest('hex')
-
-  return signature
-}

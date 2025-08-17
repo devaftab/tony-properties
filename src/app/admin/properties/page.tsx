@@ -19,15 +19,12 @@ interface Property {
   badgeClass: string
   image: string
   images?: Array<{
+    id: number
+    property_id: number
     url: string
-    thumbnailUrl?: string
-    mediumUrl?: string
-    largeUrl?: string
-    publicId?: string
-    width?: number
-    height?: number
-    format?: string
-    size?: number
+    thumbnail_url?: string
+    public_id?: string
+    is_primary: boolean
   }>
   description: string
   bedrooms: number
@@ -89,10 +86,10 @@ export default function AdminProperties() {
         return
       }
 
-      // Then, get all property images
+      // Then, get all property images with public_id for Cloudinary deletion
       const { data: imagesData, error: imagesError } = await supabase
         .from('property_images')
-        .select('*')
+        .select('id, property_id, url, thumbnail_url, public_id, is_primary')
         .eq('is_primary', true)
 
       if (imagesError) {
@@ -110,7 +107,8 @@ export default function AdminProperties() {
         ...property,
         image: imageMap.get(property.id)?.thumbnail_url || 
                imageMap.get(property.id)?.url || 
-               '/images/property-1.jpg' // Fallback image
+               '/images/property-1.jpg', // Fallback image
+        images: [imageMap.get(property.id)].filter(Boolean) // Include image data for deletion
       })) || []
 
       setProperties(transformedProperties)
@@ -203,7 +201,44 @@ export default function AdminProperties() {
         try {
           setDeletingProperties(prev => new Set(prev).add(id))
           
-          // Delete property images first
+          // First, get all property images to delete from Cloudinary
+          const { data: propertyImages, error: fetchImagesError } = await supabase
+            .from('property_images')
+            .select('*')
+            .eq('property_id', id)
+
+          if (fetchImagesError) {
+            console.error(`Error fetching property images for property ${id}:`, fetchImagesError)
+          }
+
+          // Delete images from Cloudinary if they exist
+          if (propertyImages && propertyImages.length > 0) {
+            console.log(`Deleting ${propertyImages.length} images from Cloudinary for property ${id}...`)
+            
+            for (const image of propertyImages) {
+              if (image.public_id) {
+                try {
+                  const deleteResponse = await fetch('/api/cloudinary/delete', {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ publicId: image.public_id })
+                  })
+
+                  if (!deleteResponse.ok) {
+                    console.error(`Failed to delete image ${image.public_id} from Cloudinary`)
+                  } else {
+                    console.log(`Successfully deleted image ${image.public_id} from Cloudinary`)
+                  }
+                } catch (error) {
+                  console.error(`Error deleting image ${image.public_id} from Cloudinary:`, error)
+                }
+              }
+            }
+          }
+
+          // Delete property images from database
           await supabase
             .from('property_images')
             .delete()
@@ -272,7 +307,45 @@ export default function AdminProperties() {
       // Use a transaction-like approach to ensure all deletions complete
       let deletionSuccessful = true
 
-      // Delete property images first (due to foreign key constraints)
+      // First, get all property images to delete from Cloudinary
+      const { data: propertyImages, error: fetchImagesError } = await supabase
+        .from('property_images')
+        .select('*')
+        .eq('property_id', propertyToDelete.id)
+
+      if (fetchImagesError) {
+        console.error('Error fetching property images:', fetchImagesError)
+        deletionSuccessful = false
+      }
+
+      // Delete images from Cloudinary if they exist
+      if (propertyImages && propertyImages.length > 0) {
+        console.log(`Deleting ${propertyImages.length} images from Cloudinary...`)
+        
+        for (const image of propertyImages) {
+          if (image.public_id) {
+            try {
+              const deleteResponse = await fetch('/api/cloudinary/delete', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ publicId: image.public_id })
+              })
+
+              if (!deleteResponse.ok) {
+                console.error(`Failed to delete image ${image.public_id} from Cloudinary`)
+              } else {
+                console.log(`Successfully deleted image ${image.public_id} from Cloudinary`)
+              }
+            } catch (error) {
+              console.error(`Error deleting image ${image.public_id} from Cloudinary:`, error)
+            }
+          }
+        }
+      }
+
+      // Delete property images from database
       const { error: imagesError } = await supabase
         .from('property_images')
         .delete()

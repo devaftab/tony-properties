@@ -438,7 +438,44 @@ export default function EditProperty() {
 
       // Handle image updates
       if (images.length > 0) {
-        // First, delete existing images for this property
+        // First, get existing images to delete from Cloudinary
+        const { data: existingImages, error: fetchError } = await supabase
+          .from('property_images')
+          .select('public_id')
+          .eq('property_id', propertyId)
+
+        if (fetchError) {
+          console.error('Error fetching existing images:', fetchError)
+        }
+
+        // Delete existing images from Cloudinary if they exist
+        if (existingImages && existingImages.length > 0) {
+          console.log(`Deleting ${existingImages.length} existing images from Cloudinary...`)
+          
+          for (const image of existingImages) {
+            if (image.public_id) {
+              try {
+                const deleteResponse = await fetch('/api/cloudinary/delete', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({ publicId: image.public_id })
+                })
+
+                if (!deleteResponse.ok) {
+                  console.error(`Failed to delete image ${image.public_id} from Cloudinary`)
+                } else {
+                  console.log(`Successfully deleted image ${image.public_id} from Cloudinary`)
+                }
+              } catch (error) {
+                console.error(`Error deleting image ${image.public_id} from Cloudinary:`, error)
+              }
+            }
+          }
+        }
+
+        // Now delete existing images from database
         const { error: deleteError } = await supabase
           .from('property_images')
           .delete()
